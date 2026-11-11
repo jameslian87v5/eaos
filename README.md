@@ -4,7 +4,9 @@
 > **The first open-source enterprise agent platform built natively on the Claude Agent SDK.**
 > 组织级治理内核 × Agent 运行时隔离 × 可观测，一次建设，全局复用。
 
-🎬 [观看 50 秒介绍视频](https://github.com/jameslian87v5/eaos/releases/download/v0.1.0/eaos-intro.mp4)
+https://github.com/user-attachments/assets/cb67ce82-0978-4363-8561-98b2ee365195
+
+🎬 [高清版下载（50 秒）](https://github.com/jameslian87v5/eaos/releases/download/v0.1.0/eaos-intro.mp4)
 
 ![EAOS 登录页](docs/assets/github/eaos-login.png)
 
