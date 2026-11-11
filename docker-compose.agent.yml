@@ -1,0 +1,25 @@
+# M8a production agent runtime: RUNTIME_MODE=docker (agent-per-container).
+#
+# Applied ON TOP of the base docker-compose.yml:
+#   prod:    docker compose -f docker-compose.yml -f docker-compose.agent.yml up -d --build
+#   rollback to in-process agents (one key, keeps data volume):
+#            docker compose up -d --build
+#   (plain `docker compose up` never loads this file — the base file alone
+#   recreates the platform container with RUNTIME_MODE=local and no socket.)
+#
+# Prereq (once, and after every change to server/ai-client.ts or docker/):
+#   docker build -f docker/Dockerfile -t eaos-agent:latest -t eaos-agent:$(git rev-parse --short HEAD) .
+# docker-runtime.ts launches eaos-agent:latest by default; see
+# AGENT_IMAGE override in runtime-settings.
+#
+# Security: the host Docker socket MUST be read-write — connect(2) to a Unix
+# socket requires write permission, so a :ro mount breaks the Docker API
+# entirely. Compensating controls live in docker-runtime.ts: loopback-only
+# IPC port binding (P0.2), per-agent resource limits, and the fixed
+# eaos-agent image (agents never get Docker access themselves).
+services:
+  platform:
+    environment:
+      RUNTIME_MODE: docker
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock

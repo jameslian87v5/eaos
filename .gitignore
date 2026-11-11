@@ -1,0 +1,46 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+dist-agent/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+logs/
+
+# Editor / OS
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+
+# Claude Code local settings
+.claude/
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Runtime data (SQLite, uploaded files, runtime settings)
+data/
+
+# Local agent tooling state
+.agent-bridge/
+.codex-bridge/
+.archify/
+.devin/
+
+# Experiments and local probes
+experiments/
+
+# Hub-installed runtime packages
+plugins/
+
+# Video / large binaries live in GitHub Releases, not in git
+docs/assets/github/*.mp4

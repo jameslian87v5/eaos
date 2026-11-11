@@ -1,0 +1,12 @@
+node_modules
+dist
+dist-agent
+.git
+.env
+.env.*
+!.env.example
+data
+logs
+.agent-bridge
+.codex-bridge
+*.log

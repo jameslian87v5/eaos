@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "esModuleInterop": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "outDir": "../dist-agent",
+    "rootDir": ".."
+  },
+  "include": [
+    "agent-entry.ts",
+    "../server/ipc-protocol.ts",
+    "../server/user-memory-permission-core.ts",
+    "../server/types.ts",
+    "../server/platform-web-tools.ts",
+    "../server/declarations.d.ts",
+    "../server/a2ui-types.ts",
+    "../server/a2ui-schema.ts",
+    "../server/a2ui-tool.ts"
+  ]
+}

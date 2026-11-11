@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Skill Importer</title>
+<style>
+  body { font: 14px/1.5 -apple-system, system-ui, sans-serif; margin: 24px; color: #1a1a1a; max-width: 1100px; }
+  h1 { font-size: 20px; margin: 0 0 16px; }
+  h2 { font-size: 16px; margin: 24px 0 8px; border-bottom: 1px solid #ddd; padding-bottom: 4px; }
+  .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 8px; }
+  input[type=text], select { padding: 6px 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; }
+  input[type=text].url { width: 360px; }
+  input[type=text].ref { width: 140px; }
+  input[type=file] { font-size: 13px; }
+  button { padding: 7px 14px; border: 1px solid #2b6; background: #2b6; color: #fff; border-radius: 4px; cursor: pointer; font-size: 14px; }
+  button:disabled { background: #999; border-color: #999; cursor: not-allowed; }
+  button.secondary { background: #fff; color: #2b6; }
+  table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+  th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #eee; vertical-align: top; }
+  th { background: #f7f7f7; font-weight: 600; }
+  .pill { display: inline-block; padding: 1px 6px; border-radius: 8px; font-size: 11px; }
+  .ok { background: #e6f7ec; color: #1a7; }
+  .fail { background: #fdecec; color: #c33; }
+  .warn { background: #fff7e0; color: #b80; }
+  .muted { color: #888; font-size: 12px; }
+  .err { color: #c33; }
+  label.token { font-size: 12px; color: #555; }
+</style>
+</head>
+<body>
+<h1>Skill Importer — 批量送审</h1>
+<p class="muted">独立供给入口：从 Git/ZIP 发现标准 Skill（支持一次选择多个 ZIP，逐包扫描汇总候选），逐包调用 Hub <code>publish/validate</code> + <code>publish</code>，进入 Hub 待审队列。<strong>不自动审批，不直写 Hub DB。</strong></p>
+
+<h2>1. 来源</h2>
+<div class="row">
+  <select id="kind">
+    <option value="git">Git 仓库 URL</option>
+    <option value="zip-url">ZIP URL</option>
+    <option value="zip-upload">本地上传 ZIP</option>
+  </select>
+  <input type="text" id="url" class="url" placeholder="https://github.com/org/repo" />
+  <input type="text" id="ref" class="ref" placeholder="ref (可选 branch/tag)" />
+  <input type="file" id="file" accept=".zip,application/zip" multiple style="display:none" />
+  <button id="scanBtn">扫描</button>
+  <label class="token">Admin Token <input type="password" id="token" placeholder="SKILL_IMPORTER_ADMIN_TOKEN" style="width:220px" /></label>
+</div>
+<div id="scanErr" class="err"></div>
+
+<h2>2. 扫描结果</h2>
+<div class="row">
+  <button class="secondary" id="allBtn">全选</button>
+  <button class="secondary" id="noneBtn">取消选择</button>
+  <span class="muted" id="scanMeta"></span>
+</div>
+<table id="skills">
+  <thead><tr><th></th><th>ID</th><th>名称</th><th>描述</th><th>路径</th><th>来源</th><th>脚本</th><th>许可证</th><th>文件数</th></tr></thead>
+  <tbody></tbody>
+</table>
+
+<h2>3. 导入（两步确认：先校验，看到警告后再送审）</h2>
+<div class="row">
+  目标 namespace
+  <select id="namespace"><option value="">(先加载…)</option></select>
+  <button id="validateBtn" disabled>① 校验（dry-run，不发布）</button>
+  <button id="publishBtn" disabled>② 确认送审（confirmWarnings=true）</button>
+  <button class="secondary" id="loadNsBtn">加载 namespace</button>
+</div>
+<div id="validateMeta" class="muted"></div>
+
+<h2>4. 校验详情（警告/错误 — 送审前必读）</h2>
+<table id="validation">
+  <thead><tr><th>ID</th><th>名称</th><th>校验</th><th>警告</th><th>错误</th><th>slug</th><th>version</th></tr></thead>
+  <tbody></tbody>
+</table>
+
+<h2>5. 送审结果</h2>
+<table id="results">
+  <thead><tr><th>名称</th><th>阶段</th><th>结果</th><th>原因</th><th>code</th></tr></thead>
+  <tbody></tbody>
+</table>
+
+<script>
+const $ = (id) => document.getElementById(id);
+let scanId = null;
+let skills = [];
+const tokenInput = $("token");
+// Persist admin token locally (browser only; never the Hub publish token, which is server-side).
+tokenInput.value = localStorage.getItem("si-admin-token") || "";
+tokenInput.addEventListener("change", () => localStorage.setItem("si-admin-token", tokenInput.value));
+function authHeaders() { return { "Authorization": "Bearer " + tokenInput.value, "Content-Type": "application/json" }; }
+
+$("kind").addEventListener("change", (e) => {
+  const k = e.target.value;
+  $("url").style.display = k === "zip-upload" ? "none" : "";
+  $("ref").style.display = k === "git" ? "" : "none";
+  $("file").style.display = k === "zip-upload" ? "" : "none";
+});
+$("kind").dispatchEvent(new Event("change"));
+
+$("scanBtn").addEventListener("click", async () => {
+  $("scanErr").textContent = "";
+  const kind = $("kind").value;
+  scanId = null; // fresh scan session — never append to a previous batch
+  try {
+    let j = null;
+    if (kind === "zip-upload") {
+      // Batch: send each ZIP as its own request; the 2nd..Nth carry ?scanId=
+      // so the server appends candidates into ONE session (stable ids).
+      const files = [...$("file").files];
+      if (!files.length) return ($("scanErr").textContent = "选择至少一个 ZIP 文件");
+      for (const f of files) {
+        const buf = await f.arrayBuffer();
+        const q = new URLSearchParams({ filename: f.name, ...(scanId ? { scanId } : {}) });
+        const r = await fetch("/api/import/scan-upload?" + q, { method: "POST", headers: { "Authorization": "Bearer " + tokenInput.value, "Content-Type": "application/zip" }, body: buf });
+        j = await r.json();
+        if (!r.ok) return ($("scanErr").textContent = `${f.name}: ${j.error || ("HTTP " + r.status)}`);
+        scanId = j.scanId;
+      }
+    } else {
+      const r = await fetch("/api/import/scan", { method: "POST", headers: authHeaders(), body: JSON.stringify({ kind, url: $("url").value, ref: $("ref").value || undefined }) });
+      j = await r.json();
+      if (!r.ok) return ($("scanErr").textContent = j.error || ("HTTP " + r.status));
+      scanId = j.scanId;
+    }
+    skills = j.skills || [];
+    $("scanMeta").textContent = `来源: ${j.sourceLabel} · 发现 ${skills.length} 个 Skill · 忽略 ${j.ignoredCount} 个非 Skill 目录`;
+    renderSkills();
+  } catch (e) { $("scanErr").textContent = String(e); }
+});
+
+function renderSkills() {
+  const tb = $("skills").querySelector("tbody");
+  tb.innerHTML = "";
+  for (const s of skills) {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td><input type="checkbox" data-id="${esc(s.id)}" checked></td>
+      <td class="muted">${esc(s.id)}</td>
+      <td>${esc(s.name)}</td><td>${esc(s.description)}</td><td>${esc(s.relPath)}</td><td class="muted">${esc(s.source || "")}</td>
+      <td>${s.hasScripts ? '<span class="pill warn">有脚本</span>' : '<span class="muted">无</span>'}</td>
+      <td>${s.license ? esc(s.license) : '<span class="muted">未知</span>'}</td><td>${s.fileCount}</td>`;
+    tb.appendChild(tr);
+  }
+  // Publish stays disabled until validate surfaces warnings (two-phase confirm).
+  $("validateBtn").disabled = skills.length === 0;
+  $("publishBtn").disabled = true;
+}
+function esc(s) { return String(s ?? "").replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[c]); }
+
+$("allBtn").addEventListener("click", () => document.querySelectorAll("#skills input[type=checkbox]").forEach((c) => c.checked = true));
+$("noneBtn").addEventListener("click", () => document.querySelectorAll("#skills input[type=checkbox]").forEach((c) => c.checked = false));
+
+$("loadNsBtn").addEventListener("click", async () => {
+  const r = await fetch("/api/import/namespaces", { headers: { "Authorization": "Bearer " + tokenInput.value } });
+  const j = await r.json();
+  if (!r.ok) return alert(j.error || ("HTTP " + r.status));
+  const sel = $("namespace");
+  sel.innerHTML = "";
+  for (const n of (j.namespaces || [])) {
+    const o = document.createElement("option");
+    o.value = n.slug; o.textContent = n.name ? `${n.name} (${n.slug})` : n.slug;
+    sel.appendChild(o);
+  }
+});
+
+function selectedIds() {
+  return [...document.querySelectorAll("#skills input[type=checkbox]:checked")].map((c) => c.dataset.id);
+}
+function selectedCount() { return [...document.querySelectorAll("#skills input[type=checkbox]:checked")].length; }
+
+$("validateBtn").addEventListener("click", async () => {
+  const namespace = $("namespace").value;
+  if (!namespace) return alert("先选择/加载 namespace");
+  const selected = selectedIds();
+  if (selected.length === 0) return alert("至少勾选一个 Skill");
+  $("validateMeta").textContent = "校验中（dry-run，不发布）…";
+  const r = await fetch("/api/import/validate", { method: "POST", headers: authHeaders(), body: JSON.stringify({ scanId, namespace, selected }) });
+  const j = await r.json();
+  if (!r.ok) { $("validateMeta").textContent = ""; return alert(j.error || ("HTTP " + r.status)); }
+  // Render warnings/errors per candidate.
+  const tb = $("validation").querySelector("tbody");
+  tb.innerHTML = "";
+  let anyValid = false;
+  for (const it of (j.items || [])) {
+    if (it.ok) anyValid = true;
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td class="muted">${esc(it.id)}</td><td>${esc(it.name)}</td>
+      <td>${it.ok ? '<span class="pill ok">可送审</span>' : (it.valid === false ? '<span class="pill fail">无效</span>' : '<span class="pill fail">校验失败</span>')}</td>
+      <td>${(it.warnings || []).length ? '<span class="pill warn">' + it.warnings.length + ' 条</span> <span class="muted">' + esc((it.warnings || []).join(" · ")) + '</span>' : '<span class="muted">无</span>'}</td>
+      <td>${(it.errors || []).length ? '<span class="pill fail">' + it.errors.length + ' 条</span> ' + esc((it.errors || []).join(" · ")) : '<span class="muted">无</span>'}</td>
+      <td class="muted">${esc(it.resolvedSlug || "-")}</td><td class="muted">${esc(it.resolvedVersion || "-")}</td>`;
+    tb.appendChild(tr);
+  }
+  $("validateMeta").textContent = `总计 ${j.total} · 可送审 ${j.valid} · 无效 ${j.invalid} · 校验失败 ${j.errored}`;
+  // Enable publish only if at least one candidate is cleared (operator has seen warnings).
+  $("publishBtn").disabled = !anyValid;
+});
+
+$("publishBtn").addEventListener("click", async () => {
+  const namespace = $("namespace").value;
+  if (!namespace) return alert("先选择/加载 namespace");
+  const selected = selectedIds();
+  if (selected.length === 0) return alert("至少勾选一个 Skill");
+  const r = await fetch("/api/import/publish", { method: "POST", headers: authHeaders(), body: JSON.stringify({ scanId, namespace, selected }) });
+  const j = await r.json();
+  if (!r.ok) return alert(j.error || ("HTTP " + r.status));
+  const tb = $("results").querySelector("tbody");
+  tb.innerHTML = "";
+  for (const it of (j.items || [])) {
+    const statusPill = it.ok && it.status
+      ? `<span class="pill ok">${esc(it.status)}</span>`
+      : (it.ok ? '<span class="pill ok">ok</span>' : '<span class="pill fail">失败</span>');
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td>${esc(it.name)}</td><td>${esc(it.phase)}</td>
+      <td>${statusPill}</td>
+      <td>${esc(it.reason || "")}</td><td>${it.code ?? ""}</td>`;
+    tb.appendChild(tr);
+  }
+  $("scanMeta").textContent = `总计 ${j.total} · 成功 ${j.succeeded} · 失败 ${j.failed}（最终审核状态以 Hub 返回为准）`;
+});
+</script>
+</body>
+</html>

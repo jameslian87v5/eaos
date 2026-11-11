@@ -1,0 +1,15 @@
+{
+  "name": "minimal-plugin",
+  "version": "0.1.0",
+  "description": "Minimal plugin fixture for plugin-eval tests.",
+  "author": {
+    "name": "Plugin Eval",
+    "email": "support@example.com",
+    "url": "https://example.com/"
+  },
+  "homepage": "https://example.com/",
+  "repository": "https://example.com/repo",
+  "license": "MIT",
+  "keywords": ["fixture", "plugin-eval"],
+  "skills": "./skills/"
+}

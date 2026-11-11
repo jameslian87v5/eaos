@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "esModuleInterop": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "outDir": "/opt/agent/dist",
+    "rootDir": "../.."
+  },
+  "include": [
+    "../../worker/local-agent-entry.ts",
+    "../../worker/harness/claude-harness-adapter.ts",
+    "../../server/local-agent-worker-protocol.ts",
+    "../../server/platform-runtime-protocol.ts",
+    "../../server/resolved-execution-policy.ts",
+    "../../server/claude-event-normalizer.ts"
+  ]
+}

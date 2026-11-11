@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Widget Host Demo</title>
+  <style>
+    body { margin: 0; font: 14px/1.45 system-ui, sans-serif; background: #f4f5f7; color: #111827; }
+    main { display: grid; grid-template-columns: minmax(320px, 1fr) 420px; gap: 20px; padding: 20px; min-height: 100vh; }
+    section { background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 16px; }
+    label { display: block; font-weight: 600; margin: 12px 0 6px; }
+    input, textarea { width: 100%; box-sizing: border-box; border: 1px solid #d1d5db; border-radius: 6px; padding: 8px; font: inherit; }
+    textarea { min-height: 110px; resize: vertical; }
+    button { margin-top: 12px; border: 0; border-radius: 6px; background: #4f46e5; color: white; padding: 8px 12px; font-weight: 600; cursor: pointer; }
+    button.secondary { background: #374151; }
+    #agent-widget { height: 620px; background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden; }
+    .hint { color: #6b7280; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <main>
+    <section>
+      <h1>Host Business Page</h1>
+      <p class="hint">Local demo only. Paste a short-lived widget token minted by the platform smoke flow; do not paste an AppKey here.</p>
+
+      <label>Platform URL</label>
+      <input id="platformUrl" />
+
+      <label>App ID</label>
+      <input id="appId" value="widget-demo" />
+
+      <label>Widget Token</label>
+      <textarea id="widgetToken" placeholder="Paste widget token here"></textarea>
+
+      <label>Page Context JSON</label>
+      <textarea id="contextJson">{"page":"customer-detail","customerId":"C123","tab":"overview"}</textarea>
+
+      <button id="mount">Mount Widget</button>
+      <button id="update" class="secondary">Update Context</button>
+      <button id="send" class="secondary">Send Demo Message</button>
+      <p id="status" class="hint"></p>
+    </section>
+
+    <aside>
+      <div id="agent-widget"></div>
+    </aside>
+  </main>
+
+  <script src="/sdk/agent-widget.js"></script>
+  <script>
+    let widget = null;
+    document.getElementById("platformUrl").value = location.origin;
+
+    function parseContext() {
+      return JSON.parse(document.getElementById("contextJson").value || "{}");
+    }
+
+    document.getElementById("mount").onclick = async () => {
+      if (widget) widget.destroy();
+      const token = document.getElementById("widgetToken").value.trim();
+      widget = AgentWidget.init({
+        platformUrl: document.getElementById("platformUrl").value.trim(),
+        appId: document.getElementById("appId").value.trim(),
+        container: "#agent-widget",
+        tokenProvider: async () => token,
+        context: parseContext(),
+        handlers: {
+          onReady: (info) => {
+            document.getElementById("status").textContent = "Ready: " + JSON.stringify(info);
+          },
+          onError: (err) => {
+            document.getElementById("status").textContent = "Error: " + err.message;
+          },
+        },
+      });
+      await widget.open();
+    };
+
+    document.getElementById("update").onclick = () => {
+      if (!widget) return;
+      widget.updateContext(parseContext());
+      document.getElementById("status").textContent = "Context updated";
+    };
+
+    document.getElementById("send").onclick = () => {
+      if (!widget) return;
+      widget.send("请根据当前页面上下文，简要说明你知道了什么。");
+    };
+  </script>
+</body>
+</html>

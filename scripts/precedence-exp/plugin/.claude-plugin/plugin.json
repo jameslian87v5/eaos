@@ -1,0 +1,6 @@
+{
+  "name": "precedence-exp-plugin",
+  "version": "0.1.0",
+  "description": "Precedence experiment: a plugin PreToolUse hook that ALLOWS Bash, to test whether an inline platform deny still wins.",
+  "hooks": "./hooks/hooks.json"
+}

@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EAOS — Enterprise Agent OS</title>
+<style>
+:root{
+  --bg:#060a1c; --panel:rgba(255,255,255,.045); --line:rgba(255,255,255,.12);
+  --ink:#eef2ff; --muted:rgba(238,242,255,.62);
+  --primary:#4F6EF7; --cyan:#00D4FF; --purple:#A855F7; --green:#34D399; --amber:#FBBF24; --red:#F87171;
+  --f:-apple-system,BlinkMacSystemFont,"PingFang SC","Noto Sans SC","Microsoft YaHei",sans-serif;
+  --mono:"SF Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;height:100%;background:#000;overflow:hidden;font-family:var(--f);color:var(--ink)}
+#stage{position:absolute;left:50%;top:50%;width:1920px;height:1080px;transform-origin:0 0;overflow:hidden;
+  background:radial-gradient(90% 80% at 18% 8%,#1b2a78 0%,#0b1238 45%,var(--bg) 100%)}
+#bg{position:absolute;inset:0;width:100%;height:100%}
+.grid{position:absolute;inset:0;
+  background-image:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);
+  background-size:80px 80px;-webkit-mask-image:radial-gradient(ellipse at 50% 45%,#000 15%,transparent 75%);mask-image:radial-gradient(ellipse at 50% 45%,#000 15%,transparent 75%)}
+.orb{position:absolute;border-radius:50%;filter:blur(90px);opacity:.55;animation:bob 11s ease-in-out infinite}
+.orb.a{width:620px;height:620px;right:-160px;bottom:-220px;background:radial-gradient(circle,rgba(0,212,255,.5),transparent 70%)}
+.orb.b{width:520px;height:520px;left:-140px;top:-180px;background:radial-gradient(circle,rgba(168,85,247,.45),transparent 70%);animation-delay:-5s}
+@keyframes bob{0%,100%{transform:translate(0,0)}50%{transform:translate(-36px,-28px)}}
+
+/* ===== scene + timed elements ===== */
+.scene{position:absolute;inset:0;opacity:0;visibility:hidden;transition:opacity .6s ease,visibility 0s .6s}
+.scene.active{opacity:1;visibility:visible;transition:opacity .6s ease}
+.fx{opacity:0;transform:translateY(26px);transition:opacity .7s ease,transform .7s cubic-bezier(.2,.8,.2,1)}
+.fx.zoom{transform:scale(.86)} .fx.left{transform:translateX(-50px)} .fx.right{transform:translateX(50px)} .fx.fade{transform:none}
+.fx.on{opacity:1;transform:none}
+.abs{position:absolute}
+.grad{background:linear-gradient(100deg,#fff 0%,var(--cyan) 55%,var(--purple) 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.cap{position:absolute;left:0;right:0;bottom:44px;text-align:center;font-size:32px;font-weight:500;letter-spacing:1px;
+  color:#fff;text-shadow:0 2px 18px rgba(0,0,0,.8)}
+.cap span{display:inline-block;padding:10px 28px;border-radius:14px;background:rgba(4,8,26,.62);border:1px solid rgba(255,255,255,.1)}
+.tag{position:absolute;left:120px;top:64px;font-size:26px;letter-spacing:6px;color:var(--cyan);font-weight:600}
+.tag b{color:#fff;font-weight:700;margin-left:14px;letter-spacing:2px}
+.note{position:absolute;right:120px;top:70px;font-size:18px;color:var(--muted);padding:6px 14px;border:1px solid var(--line);border-radius:20px}
+.panel{position:absolute;background:var(--panel);border:1px solid var(--line);border-radius:22px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.ptitle{display:flex;align-items:center;gap:12px;padding:20px 28px;border-bottom:1px solid var(--line);font-size:22px;font-weight:600;color:var(--muted)}
+.ptitle i{width:10px;height:10px;border-radius:50%;background:var(--green);box-shadow:0 0 10px var(--green)}
+.mono{font-family:var(--mono)}
+
+/* ===== S1 ===== */
+.s1h{left:0;right:0;top:190px;text-align:center;font-size:40px;color:var(--muted);letter-spacing:4px}
+.pain{left:360px;right:360px;height:130px;display:flex;align-items:center;gap:34px;padding:0 44px;border-radius:20px;
+  background:var(--panel);border:1px solid var(--line)}
+.pain .n{font-size:26px;font-family:var(--mono);color:var(--red);border:1px solid rgba(248,113,113,.5);border-radius:10px;padding:6px 14px}
+.pain .t{font-size:46px;font-weight:700}
+.pain .d{font-size:28px;color:var(--muted);margin-left:auto}
+.logo{left:0;right:0;top:150px;text-align:center;font-size:220px;font-weight:800;letter-spacing:22px;line-height:1}
+.sub{left:0;right:0;top:392px;text-align:center;font-size:34px;letter-spacing:14px;color:var(--muted)}
+.tl{left:0;right:0;top:478px;text-align:center;font-size:54px;font-weight:700}
+.tl em{font-style:normal;color:var(--cyan)}
+.tle{left:0;right:0;top:562px;text-align:center;font-size:27px;color:var(--muted)}
+.pillars{left:200px;right:200px;top:660px;display:grid;grid-template-columns:repeat(4,1fr);gap:22px}
+.pil{padding:26px 26px;border-radius:18px;background:var(--panel);border:1px solid var(--line);border-top:3px solid var(--cyan)}
+.pil h4{font-size:30px;margin-bottom:8px}.pil p{font-size:20px;color:var(--muted);line-height:1.5}
+.pil:nth-child(2){border-top-color:var(--primary)}.pil:nth-child(3){border-top-color:var(--purple)}.pil:nth-child(4){border-top-color:var(--green)}
+.base{left:200px;right:200px;top:842px;height:58px;border-radius:14px;display:grid;place-items:center;font-size:24px;letter-spacing:6px;
+  background:linear-gradient(90deg,rgba(79,110,247,.35),rgba(168,85,247,.35));border:1px solid var(--line)}
+
+/* ===== S2 ===== */
+.msg{margin:22px 28px 0;font-size:25px;line-height:1.5}
+.msg.user{margin-left:150px;padding:16px 22px;border-radius:18px 18px 4px 18px;background:rgba(79,110,247,.45)}
+.msg.agent{color:var(--ink)}
+.tool{margin:18px 28px 0;padding:14px 20px;border-radius:12px;background:rgba(0,0,0,.35);border:1px solid var(--line);font-size:21px}
+.tool b{color:var(--amber);margin-right:14px}
+.appr{margin:20px 28px 0;padding:24px 26px;border-radius:18px;background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.55);
+  box-shadow:0 0 50px rgba(251,191,36,.18);position:relative}
+.appr h5{font-size:27px;margin-bottom:8px}.appr p{font-size:21px;color:var(--muted)}
+.badge{position:absolute;right:24px;top:24px;font-size:19px;padding:6px 16px;border-radius:20px;font-weight:600}
+.badge.wait{background:rgba(251,191,36,.18);color:var(--amber);border:1px solid var(--amber);animation:beat 1.2s ease-in-out infinite}
+.badge.ok{background:rgba(52,211,153,.18);color:var(--green);border:1px solid var(--green)}
+@keyframes beat{50%{opacity:.45}}
+.btns{display:flex;gap:16px;margin-top:20px}
+.btn{font-size:22px;padding:11px 34px;border-radius:12px;border:1px solid var(--line);color:var(--muted)}
+.btn.go{background:var(--primary);border-color:var(--primary);color:#fff;font-weight:600}
+.done{margin:20px 28px 0;font-size:24px;color:var(--green)}
+.cursor{left:1080px;top:880px;width:34px;height:34px;transition:left 1.1s cubic-bezier(.3,.7,.2,1),top 1.1s cubic-bezier(.3,.7,.2,1),opacity .3s;opacity:0;z-index:5}
+.cursor.on{left:236px;top:650px;opacity:1}
+.ripple{left:183px;top:597px;width:110px;height:110px;border-radius:50%;border:3px solid var(--cyan);opacity:0;transform:scale(.2)}
+.ripple.on{animation:rip .7s ease-out forwards}
+@keyframes rip{0%{opacity:.9;transform:scale(.2)}100%{opacity:0;transform:scale(1.3)}}
+.row{display:grid;grid-template-columns:120px 130px 1fr;gap:14px;padding:17px 28px;font-size:20px;border-bottom:1px solid rgba(255,255,255,.06);align-items:center}
+.row.head{color:var(--muted);font-size:18px}
+.row .ev{font-family:var(--mono);color:var(--cyan)}.row small{display:block;color:var(--muted);font-size:17px;font-family:var(--f);margin-top:3px}
+.row.new{background:rgba(52,211,153,.1);box-shadow:inset 4px 0 0 var(--green)}
+.row.new .ev{color:var(--green)}
+
+/* ===== S3 ===== */
+.story{left:0;right:0;top:44px;display:flex;justify-content:center;gap:44px;font-size:50px;font-weight:800}
+.story .fx:nth-child(1){color:var(--cyan)}.story .fx:nth-child(2){color:#c4b5fd}.story .fx:nth-child(3){color:var(--red)}
+.box h3{font-size:23px;letter-spacing:3px;color:var(--muted);padding:20px 26px 0}
+.vault{margin:20px 26px 0;padding:20px 22px;border-radius:16px;background:rgba(0,212,255,.08);border:1px solid rgba(0,212,255,.5)}
+.vault h5{font-size:25px;margin-bottom:6px}.vault p{font-size:20px;color:var(--muted)}.vault code{font-family:var(--mono);color:var(--cyan)}
+.gw{margin:18px 26px 0;padding:16px 22px;border-radius:14px;border:1px dashed var(--line);font-size:22px;color:var(--muted)}
+.ctn{border:2px dashed rgba(168,85,247,.7);background:rgba(168,85,247,.06);transition:opacity .8s,filter .8s,border-color .8s}
+.ctn.dead-on{opacity:.38;filter:grayscale(1)}
+.agt{margin:20px 26px 0;padding:20px 22px;border-radius:16px;background:rgba(168,85,247,.12);border:1px solid rgba(168,85,247,.5)}
+.agt h5{font-size:25px;margin-bottom:6px}.agt p{font-size:20px;color:var(--muted)}
+.res{margin:18px 26px 0;padding:14px 20px;border-radius:14px;background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.5);font-size:21px;color:var(--green)}
+.tok{top:548px;left:470px;padding:10px 20px;border-radius:24px;font-family:var(--mono);font-size:21px;font-weight:600;color:#06122e;
+  background:linear-gradient(90deg,var(--cyan),#a5f3fc);box-shadow:0 0 34px rgba(0,212,255,.8);opacity:0;z-index:4;
+  transition:left 1.9s cubic-bezier(.5,0,.2,1),opacity .5s}
+.tok.on{left:900px;opacity:1}
+.tokdead{top:548px;left:900px;padding:10px 20px;border-radius:24px;font-family:var(--mono);font-size:21px;font-weight:600;color:var(--red);
+  border:1px solid var(--red);background:rgba(248,113,113,.14);text-decoration:line-through;z-index:4}
+.stamp{left:930px;top:330px;font-size:44px;font-weight:800;color:var(--red);border:4px solid var(--red);border-radius:14px;padding:10px 26px;
+  transform:rotate(-8deg) scale(1.6);z-index:6;background:rgba(6,10,28,.75)}
+.stamp.on{transform:rotate(-8deg) scale(1)}
+.fs h5{font-size:25px;padding:20px 24px 8px}.fs i{display:block;height:12px;border-radius:6px;background:rgba(255,255,255,.16);margin:12px 24px}
+svg.wires{position:absolute;inset:0;width:1920px;height:1080px;pointer-events:none}
+svg.wires path{fill:none;stroke-width:3;stroke-dasharray:10 9;animation:dash 1s linear infinite}
+@keyframes dash{to{stroke-dashoffset:-19}}
+.lbl{font-size:20px;color:var(--ink);padding:5px 14px;border-radius:16px;background:rgba(6,10,28,.85);border:1px solid var(--line);white-space:nowrap}
+.term>div{white-space:pre}
+.term{background:rgba(0,0,0,.6);font-family:var(--mono);font-size:20px;padding:20px 28px;line-height:1.75}
+.term .p{color:var(--green)}.term .h{color:var(--muted)}.term .c{color:var(--cyan)}.term .x{color:var(--red)}
+.term .fx{transform:none;transition:opacity .25s}
+
+/* ===== S4 ===== */
+.chips{left:0;right:0;top:650px;display:flex;justify-content:center;gap:26px}
+.chip{font-size:32px;font-weight:600;padding:16px 40px;border-radius:40px;background:var(--panel);border:1px solid var(--line)}
+.oss{left:0;right:0;top:770px;text-align:center;font-size:36px;letter-spacing:10px;color:var(--cyan)}
+.repo{left:0;right:0;top:850px;text-align:center;font-size:30px;font-family:var(--mono);color:var(--muted)}
+
+/* ===== 授权 / SDK 原生 / 对比 ===== */
+.role{left:120px;width:560px;padding:24px 30px;border-radius:18px;background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--cyan)}
+.role h4{font-size:32px;font-family:var(--mono)}.role p{font-size:22px;color:var(--muted);margin-top:6px}
+.rnote{left:120px;top:690px;width:560px;font-size:22px;color:var(--muted)}
+.vc{width:400px;height:400px;border-radius:50%;border:2px solid;font-size:28px;font-weight:600}
+.vc span{position:absolute;white-space:nowrap}
+.vc.a{left:990px;top:190px;border-color:var(--cyan);background:rgba(0,212,255,.1);color:var(--cyan)}
+.vc.b{left:1210px;top:190px;border-color:var(--primary);background:rgba(79,110,247,.14);color:#9db0ff}
+.vc.c{left:1100px;top:380px;border-color:var(--purple);background:rgba(168,85,247,.12);color:#d8b4fe}
+.core{left:1215px;top:432px;width:170px;height:76px;border-radius:38px;display:grid;place-items:center;font-size:28px;font-weight:800;color:#06122e;
+  background:var(--green);box-shadow:0 0 60px rgba(52,211,153,.9)}
+.deny{left:1560px;top:700px;font-size:26px;font-weight:700;color:var(--red);border:2px solid var(--red);border-radius:14px;padding:10px 20px;background:rgba(248,113,113,.1)}
+.dual{margin:18px 28px 0;padding:12px 18px;border-radius:12px;border:1px dashed var(--line);font-size:20px;color:var(--muted)}
+.row.warn{background:rgba(251,191,36,.1);box-shadow:inset 4px 0 0 var(--amber)}.row.warn .ev{color:var(--amber)}
+.cmp h3{font-size:30px;padding:26px 34px;border-bottom:1px solid var(--line)}
+.cmp.bad h3{color:var(--red)}.cmp.good h3{color:var(--cyan)}
+.cmp.good{border-color:rgba(0,212,255,.55);box-shadow:0 0 70px rgba(0,212,255,.16)}
+.step{margin:20px 34px 0;padding:15px 22px;border-radius:12px;background:rgba(0,0,0,.3);border:1px solid var(--line);font-size:24px}
+.pipe{display:flex;align-items:center;gap:10px;margin:22px 34px 0;font-size:22px}
+.pipe b{padding:13px 16px;border-radius:12px;background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.5);font-weight:600;white-space:nowrap}
+.pipe i{color:var(--cyan);font-style:normal}
+.mk{margin:20px 34px 0;font-size:27px;font-weight:600}.mk.x{color:var(--red)}.mk.v{color:var(--green)}
+.strip{left:120px;top:800px;width:1680px;padding:20px 30px;border-radius:16px;text-align:center;font-size:26px;
+  background:linear-gradient(90deg,rgba(79,110,247,.3),rgba(168,85,247,.3));border:1px solid var(--line)}
+.strip small{color:var(--muted);font-size:21px;margin-left:14px}
+.tbl{left:120px;top:160px;width:1680px;border-radius:22px;overflow:hidden;border:1px solid var(--line);background:var(--panel)}
+.tr{display:grid;grid-template-columns:230px 1.3fr 1fr 1fr 1fr;align-items:center;border-bottom:1px solid rgba(255,255,255,.07);font-size:24px;color:var(--muted)}
+.tr>*{padding:25px 26px}
+.tr.th{font-size:23px;font-weight:600;background:rgba(0,0,0,.3)}
+.tr>:first-child{color:var(--ink);font-weight:600}
+.tr>:nth-child(2){color:#fff;font-weight:700;background:rgba(0,212,255,.1);box-shadow:inset 2px 0 0 var(--cyan),inset -2px 0 0 var(--cyan)}
+.tr.th>:nth-child(2){color:var(--cyan);font-size:28px}
+.tr .no{color:var(--red)}.tr .yes{color:var(--green)}
+.mvm{left:1530px;top:572px;width:270px;padding:12px 16px;border-radius:14px;font-size:19px;line-height:1.5;color:#d8b4fe;
+  border:1px dashed rgba(168,85,247,.7);background:rgba(168,85,247,.08);text-align:center}
+
+/* ===== controls ===== */
+#ui{position:fixed;left:0;right:0;bottom:0;padding:10px 18px 12px;display:flex;align-items:center;gap:14px;z-index:20;
+  background:linear-gradient(transparent,rgba(0,0,0,.75));opacity:0;transition:opacity .3s;font-size:13px;color:var(--muted)}
+body:hover #ui,body.paused #ui,body.ended #ui{opacity:1}
+body.record #ui{display:none}
+#ui button{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);color:#fff;border-radius:8px;padding:6px 14px;cursor:pointer;font:inherit}
+#bar{flex:1;height:6px;border-radius:3px;background:rgba(255,255,255,.18);cursor:pointer;position:relative}
+#fill{position:absolute;left:0;top:0;bottom:0;border-radius:3px;background:linear-gradient(90deg,var(--cyan),var(--purple));width:0}
+#bar u{position:absolute;top:-3px;width:2px;height:12px;background:rgba(255,255,255,.55)}
+</style>
+</head>
+<body>
+<div id="stage">
+  <div class="orb a"></div><div class="orb b"></div><div class="grid"></div>
+  <canvas id="bg" width="1920" height="1080"></canvas>
+
+  <!-- ============ 画面 1 · 观点卡 ============ -->
+  <section class="scene" data-dur="10">
+    <div class="abs fx s1h" data-in="0.2" data-out="4.1">每个团队，都在重复造这三样</div>
+    <div class="abs fx left pain" style="top:300px" data-in="0.5" data-out="4.1"><span class="n">01</span><span class="t">Harness 复用</span><span class="d">各接一遍 SDK，模型一换全改</span></div>
+    <div class="abs fx left pain" style="top:460px" data-in="1.2" data-out="4.2"><span class="n">02</span><span class="t">权限治理</span><span class="d">每个应用各自回答，审计无法穿透</span></div>
+    <div class="abs fx left pain" style="top:620px" data-in="1.9" data-out="4.3"><span class="n">03</span><span class="t">可观测</span><span class="d">看不见 agent 在干什么</span></div>
+
+    <div class="abs fx zoom logo grad" data-in="4.6">EAOS</div>
+    <div class="abs fx fade sub" data-in="5.0">ENTERPRISE AGENT OS</div>
+    <div class="abs fx tl" data-in="5.4">首个基于 <em>Claude Agent SDK</em> 的开源企业级 Agent 平台</div>
+    <div class="abs fx tle" data-in="5.9">The first open-source enterprise agent platform built natively on the Claude Agent SDK</div>
+    <div class="abs pillars">
+      <div class="pil fx" data-in="6.8"><h4>企业级治理</h4><p>org 三档角色 · deny-default 授权<br>审批双通道 · 全链路审计</p></div>
+      <div class="pil fx" data-in="7.0"><h4>SDK 原生</h4><p>native Skill · PreToolUse hook<br>SKILL.md 开放格式</p></div>
+      <div class="pil fx" data-in="7.2"><h4>Runtime 隔离</h4><p>每 chat 一容器<br>凭证不出 host</p></div>
+      <div class="pil fx" data-in="7.4"><h4>可观测</h4><p>Token 用量 · 会话与容器诊断<br>双审计视图 · 安全中心</p></div>
+    </div>
+    <div class="abs fx fade base" data-in="7.7">CLAUDE AGENT SDK · 原生引擎</div>
+    <div class="cap fx fade" data-in="0.3" data-out="4.3"><span>每个团队都在重复造 agent 的权限、隔离和监控。</span></div>
+    <div class="cap fx fade" data-in="4.7"><span>EAOS——首个基于 Claude Agent SDK 的开源企业级 Agent 平台，把这些能力沉淀成平台。</span></div>
+  </section>
+
+  <!-- ============ 治理 · 默认拒绝 ============ -->
+  <section class="scene" data-dur="7">
+    <div class="tag fx fade" data-in="0.1">01<b>治理 · 默认拒绝</b></div>
+    <div class="abs role fx left" style="top:190px" data-in="0.4"><h4>admin</h4><p>跨组织超管</p></div>
+    <div class="abs role fx left" style="top:350px;border-left-color:var(--primary)" data-in="0.7"><h4>org_admin</h4><p>仅本组织 · 不得提权、不得跨组织</p></div>
+    <div class="abs role fx left" style="top:510px;border-left-color:var(--purple)" data-in="1.0"><h4>user</h4><p>在被授权的范围内使用</p></div>
+    <div class="abs rnote fx fade" data-in="1.4">orgId 只来自服务端可信源，不可从请求注入</div>
+    <div class="abs vc a fx zoom" data-in="1.8"><span style="left:60px;top:120px">应用允许</span></div>
+    <div class="abs vc b fx zoom" data-in="2.2"><span style="right:56px;top:120px">组织授权</span></div>
+    <div class="abs vc c fx zoom" data-in="2.6"><span style="left:136px;bottom:70px">agent 激活</span></div>
+    <div class="abs core fx zoom" data-in="3.4">能力生效</div>
+    <div class="abs deny fx zoom" data-in="4.2">交集之外 · 一律拒绝</div>
+    <div class="cap fx fade" data-in="0.3" data-out="3.2"><span>组织三档角色，默认拒绝。</span></div>
+    <div class="cap fx fade" data-in="3.4"><span>能力生效 = 应用允许 ∩ 组织授权 ∩ agent 激活。</span></div>
+  </section>
+
+  <!-- ============ 画面 2 · 治理 ============ -->
+  <section class="scene" data-dur="15">
+    <div class="tag fx fade" data-in="0.1">01<b>治理 · 人在回路</b></div>
+    <div class="note fx fade" data-in="0.1">流程示意动画</div>
+
+    <div class="panel fx left" style="left:120px;top:150px;width:900px;height:740px" data-in="0.2">
+      <div class="ptitle"><i></i>Agent 工作台</div>
+      <div class="msg user fx" data-in="0.8">把本周巡检结果整理成报告，写入 output/report.md</div>
+      <div class="msg agent fx" data-in="1.8">好的，整理完成，准备写入文件。</div>
+      <div class="tool mono fx" data-in="2.6"><b>Write</b>/workspace/output/report.md</div>
+      <div class="appr fx zoom" data-in="3.4">
+        <h5>需要审批 · 写操作</h5>
+        <p>Agent 请求执行 Write，该工具不在自动放行名单内。</p>
+        <span class="badge wait fx fade" data-in="3.4" data-out="6.3">待批准</span>
+        <span class="badge ok fx fade" data-in="6.3">已批准</span>
+        <div class="btns"><span class="btn go">批准</span><span class="btn">拒绝</span></div>
+      </div>
+      <div class="done fx" data-in="7.3">✓ 已写入 report.md · 执行继续</div>
+      <div class="dual fx" data-in="7.9">审批双通道：host 审批管理器 + 容器内 PreToolUse hook</div>
+    </div>
+    <div class="abs cursor" data-in="4.8" data-out="8">
+      <svg viewBox="0 0 24 24" width="34" height="34"><path d="M4 2l15 9-7 1.5L8.5 20z" fill="#fff" stroke="#06122e" stroke-width="1.5"/></svg>
+    </div>
+    <div class="abs ripple" data-in="6.1" data-out="7"></div>
+
+    <div class="panel fx right" style="left:1070px;top:150px;width:730px;height:740px" data-in="8.6">
+      <div class="ptitle"><i></i>治理审计 · 全程留痕</div>
+      <div class="row head"><span>时间</span><span>操作者</span><span>事件</span></div>
+      <div class="row new fx fade" data-in="9.4"><span class="mono">刚刚</span><span>admin</span><span class="ev">审批 · 已批准<small>Write · output/report.md</small></span></div>
+      <div class="row fx fade" data-in="9.9"><span class="mono">刚刚</span><span>agent</span><span class="ev">审批 · 已发起<small>Write · 等待人工确认</small></span></div>
+      <div class="row fx fade" data-in="10.4"><span class="mono">今天</span><span>org_admin</span><span class="ev">授权 · 本组织启用<small>skill · 默认拒绝之上的显式允许</small></span></div>
+      <div class="row fx fade" data-in="10.9"><span class="mono">今天</span><span>admin</span><span class="ev">Connector · 已授权<small>凭证已写入，不回显</small></span></div>
+      <div class="row warn fx fade" data-in="11.4"><span class="mono">昨天</span><span>admin</span><span class="ev">Skill 导入 · 待审查<small>供应链校验 → quarantine → 人工审查 · 默认不启用</small></span></div>
+    </div>
+    <div class="cap fx fade" data-in="0.4" data-out="8.4"><span>危险操作，人在回路。</span></div>
+    <div class="cap fx fade" data-in="8.8"><span>每一次审批、每一次授权，全程留痕。</span></div>
+  </section>
+
+  <!-- ============ SDK 原生 ============ -->
+  <section class="scene" data-dur="10">
+    <div class="tag fx fade" data-in="0.1">02<b>SDK 原生 · 不是套壳</b></div>
+    <div class="panel cmp bad fx left" style="left:120px;top:150px;width:800px;height:620px" data-in="0.3">
+      <h3>Prompt 注入式 skill</h3>
+      <div class="step fx" data-in="0.8">skill 内容拼进系统提示词</div>
+      <div class="step fx" data-in="1.2">模型自行读文件「模拟」执行</div>
+      <div class="mk x fx" data-in="1.8">✗ 无工具调用边界</div>
+      <div class="mk x fx" data-in="2.2">✗ 审批拦不住</div>
+      <div class="mk x fx" data-in="2.6">✗ 审计不可见</div>
+    </div>
+    <div class="panel cmp good fx right" style="left:1000px;top:150px;width:800px;height:620px" data-in="3.2">
+      <h3>EAOS · Claude Agent SDK 原生</h3>
+      <div class="pipe">
+        <b class="fx" data-in="3.7">native Skill 工具</b><i class="fx fade" data-in="4.0">→</i>
+        <b class="fx" data-in="4.1">PreToolUse hook</b><i class="fx fade" data-in="4.4">→</i>
+        <b class="fx" data-in="4.5">审批</b><i class="fx fade" data-in="4.8">→</i>
+        <b class="fx" data-in="4.9">审计</b>
+      </div>
+      <div class="step fx" data-in="5.3">每一次 skill 调用都是一次真实的工具调用</div>
+      <div class="mk v fx" data-in="5.8">✓ 真实工具边界</div>
+      <div class="mk v fx" data-in="6.1">✓ 可审批</div>
+      <div class="mk v fx" data-in="6.4">✓ 可审计</div>
+    </div>
+    <div class="abs strip fx" data-in="7.1">SKILL.md 开放格式 · 第三方技能市场内容原生可消费<small>导入必过审查，默认不启用</small></div>
+    <div class="cap fx fade" data-in="0.4" data-out="3.1"><span>把 skill 塞进提示词，只是模拟。</span></div>
+    <div class="cap fx fade" data-in="3.3"><span>EAOS 走 SDK 原生工具调用——每一次都可审批、可审计。</span></div>
+  </section>
+
+  <!-- ============ 画面 3 · 隔离 + 凭证托管 ============ -->
+  <section class="scene" data-dur="20">
+    <div class="abs story">
+      <span class="fx" data-in="0.4">凭证在 host</span>
+      <span class="fx" data-in="3.2">token 进容器</span>
+      <span class="fx" data-in="14.6">runtime 死 token 死</span>
+    </div>
+
+    <div class="panel box fx left" style="left:120px;top:236px;width:580px;height:400px" data-in="0.6">
+      <h3>HOST · 平台控制面</h3>
+      <div class="vault fx" data-in="1.2"><h5>凭证托管</h5><p><code>AES-256-GCM</code> 加密 · 页面不回显</p><p class="mono" style="margin-top:8px">飞书 OAuth　●●●●●●●●●●</p></div>
+      <div class="gw fx" data-in="1.9">Connector 网关 · 校验 scoped token</div>
+    </div>
+
+    <div class="panel box ctn fx" style="left:850px;top:236px;width:540px;height:400px" data-in="2.6" data-dead="14.6">
+      <h3 class="mono">eaos-agent-7f3a</h3>
+      <div class="agt"><h5>Agent · Claude Agent SDK</h5><p>独立容器 · 独立 workspace 卷</p></div>
+      <div class="res fx" data-in="10">✓ 已读取飞书文档内容（未接触原始凭证）</div>
+    </div>
+
+    <div class="panel fs fx right" style="left:1530px;top:300px;width:270px;height:250px" data-in="6.4">
+      <h5>飞书文档</h5><i style="width:70%"></i><i style="width:82%"></i><i style="width:55%"></i><i style="width:76%"></i>
+    </div>
+
+    <svg class="wires" viewBox="0 0 1920 1080">
+      <defs>
+        <marker id="ac" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#00D4FF"/></marker>
+        <marker id="ag" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#34D399"/></marker>
+      </defs>
+      <path class="fx fade" data-in="6.6" data-out="14.6" d="M848 500 L708 500" stroke="#00D4FF" marker-end="url(#ac)"/>
+      <path class="fx fade" data-in="8" data-out="14.6" d="M420 234 C420 150 1665 150 1665 292" stroke="#00D4FF" marker-end="url(#ac)"/>
+      <path class="fx fade" data-in="9.4" data-out="14.6" d="M1528 430 L1398 430" stroke="#34D399" marker-end="url(#ag)"/>
+    </svg>
+    <div class="abs lbl fx fade" style="left:712px;top:452px;font-size:17px;padding:4px 9px" data-in="6.6" data-out="14.6">① 持 token 调用</div>
+    <div class="abs lbl fx fade" style="left:880px;top:148px" data-in="8" data-out="14.6">② host 用真实凭证访问，凭证不离开 host</div>
+    <div class="abs lbl fx fade" style="left:1402px;top:382px;font-size:17px;padding:4px 9px" data-in="9.4" data-out="14.6">③ 仅内容返回</div>
+
+    <div class="abs tok" data-in="3.4" data-out="14.6">scoped token</div>
+    <div class="abs tokdead fx fade" data-in="14.9">scoped token · 已失效</div>
+    <div class="abs stamp fx fade" data-in="15.2">RUNTIME 已停止</div>
+
+    <div class="panel term fx" style="left:120px;top:664px;width:1680px;height:266px" data-in="10.3">
+      <div class="fx" data-in="10.8"><span class="p">$</span> docker ps --filter label=app=eaos-agent</div>
+      <div class="fx h" data-in="11.2">NAMES                 STATUS          PORTS</div>
+      <div class="fx" data-in="11.5"><span class="c">eaos-agent-7f3a</span>    Up 2 minutes    0.0.0.0:31842->9100/tcp   <span class="h"># 对话 A</span></div>
+      <div class="fx" data-in="11.8"><span class="c">eaos-agent-c91e</span>    Up 9 minutes    0.0.0.0:36120->9100/tcp   <span class="h"># 对话 B</span></div>
+      <div class="fx" data-in="12.1"><span class="c">eaos-agent-2bd4</span>    Up 14 minutes   0.0.0.0:33507->9100/tcp   <span class="h"># 对话 C</span></div>
+      <div class="fx" data-in="15.4"><span class="x">eaos-agent-7f3a</span>    stopped → removed　<span class="h"># 卷保留，可冷恢复；token 随 runtime 失效</span></div>
+    </div>
+    <div class="note fx fade" style="top:auto;bottom:158px;right:140px" data-in="10.8">终端输出为示意</div>
+
+    <div class="abs mvm fx" data-in="16.4">MicroVM 级隔离<br>路线在验 · POC 已验收</div>
+    <div class="cap fx fade" data-in="0.4" data-out="10.4"><span>凭证在 host，token 进容器，runtime 死 token 死。</span></div>
+    <div class="cap fx fade" data-in="10.8"><span>每个 agent 一个容器，它永远碰不到原始凭证。</span></div>
+  </section>
+
+  <!-- ============ 对比卡 ============ -->
+  <section class="scene" data-dur="8">
+    <div class="tag fx fade" data-in="0.1">03<b>这个交叉点，今天是空的</b></div>
+    <div class="abs tbl fx" data-in="0.3">
+      <div class="tr th"><span></span><span>EAOS</span><span>deepagents 系平台</span><span>Claude Code 套壳 UI</span><span>云托管方案</span></div>
+      <div class="tr fx fade" data-in="0.9"><span>引擎</span><span>Claude Agent SDK 原生</span><span>prompt 注入模拟 skill</span><span>共享进程</span><span>闭源托管</span></div>
+      <div class="tr fx fade" data-in="1.5"><span>组织治理</span><span>org 三档 + entitlement 叠加</span><span>admin / owner 二元</span><span class="no">无</span><span>平台黑盒</span></div>
+      <div class="tr fx fade" data-in="2.1"><span>审批 + 审计</span><span>双通道 + 全链路</span><span>有限自建</span><span>依赖本地 CLI</span><span>平台黑盒</span></div>
+      <div class="tr fx fade" data-in="2.7"><span>凭证托管</span><span>host 托管 + scoped token</span><span>无 org 叠加</span><span class="no">无</span><span>不适用</span></div>
+      <div class="tr fx fade" data-in="3.3"><span>Runtime 隔离</span><span>每 chat 一容器</span><span>进程内插件</span><span>共享进程</span><span>云沙箱</span></div>
+      <div class="tr fx fade" data-in="3.9" style="border-bottom:0"><span>开源自托管</span><span class="yes">✓</span><span class="yes">✓</span><span class="yes">✓</span><span class="no">✗</span></div>
+    </div>
+    <div class="cap fx fade" data-in="0.4"><span>Claude SDK 原生引擎 × 企业级治理与隔离——EAOS 占的就是这个交叉点。</span></div>
+  </section>
+
+  <!-- ============ 画面 4 · 收尾卡 ============ -->
+  <section class="scene" data-dur="6">
+    <div class="abs fx zoom logo grad" style="top:130px" data-in="0.2">EAOS</div>
+    <div class="abs fx fade sub" style="top:372px" data-in="0.5">ENTERPRISE AGENT OS</div>
+    <div class="abs fx tl" style="top:470px" data-in="0.8">首个基于 <em>Claude Agent SDK</em> 的开源企业级 Agent 平台</div>
+    <div class="abs chips">
+      <span class="chip fx" data-in="1.4">治理内核</span><span class="chip fx" data-in="1.6">运行时隔离</span><span class="chip fx" data-in="1.8">可观测</span>
+    </div>
+    <div class="abs fx fade oss" data-in="2.3">开源 · 自托管</div>
+    <div class="abs fx fade repo" id="repo" data-in="2.8">GitHub · EAOS</div>
+  </section>
+</div>
+
+<div id="ui">
+  <button id="pp">暂停</button><button id="rs">重播</button>
+  <div id="bar"><div id="fill"></div></div>
+  <span id="tm">0:00</span><span>空格 暂停 · ←/→ 切幕 · F 全屏</span>
+</div>
+
+<script>
+(() => {
+  const q = new URLSearchParams(location.search);
+  if (q.has('record')) document.body.classList.add('record');
+  if (q.get('repo')) document.getElementById('repo').textContent = q.get('repo');
+
+  const stage = document.getElementById('stage');
+  const fit = () => {
+    const s = Math.min(innerWidth / 1920, innerHeight / 1080);
+    stage.style.transform = `scale(${s}) translate(-50%,-50%)`;
+  };
+  addEventListener('resize', fit); fit();
+
+  const scenes = [...document.querySelectorAll('.scene')].map(el => ({
+    el, dur: +el.dataset.dur,
+    items: [...el.querySelectorAll('[data-in]')].map(e => ({ e, a: +e.dataset.in, b: e.dataset.out ? +e.dataset.out : Infinity })),
+    dead: [...el.querySelectorAll('[data-dead]')].map(e => ({ e, a: +e.dataset.dead })),
+  }));
+  let acc = 0;
+  scenes.forEach(s => { s.start = acc; acc += s.dur; });
+  const total = acc;
+
+  const bar = document.getElementById('bar'), fill = document.getElementById('fill'), tm = document.getElementById('tm'), pp = document.getElementById('pp');
+  scenes.slice(1).forEach(s => { const u = document.createElement('u'); u.style.left = (s.start / total * 100) + '%'; bar.appendChild(u); });
+
+  let t = 0, playing = true, last = performance.now();
+  const render = () => {
+    const idx = Math.max(0, scenes.findIndex(s => t < s.start + s.dur));
+    scenes.forEach((s, i) => {
+      const on = i === (t >= total ? scenes.length - 1 : idx), lt = t - s.start;
+      s.el.classList.toggle('active', on);
+      s.items.forEach(it => it.e.classList.toggle('on', on && lt >= it.a && lt < it.b));
+      s.dead.forEach(it => it.e.classList.toggle('dead-on', on && lt >= it.a));
+    });
+    fill.style.width = Math.min(100, t / total * 100) + '%';
+    const sec = Math.floor(Math.min(t, total));
+    const mmss = v => `${Math.floor(v / 60)}:${String(v % 60).padStart(2, '0')}`;
+    tm.textContent = `${mmss(sec)} / ${mmss(Math.round(total))}`;
+    document.body.classList.toggle('ended', t >= total);
+    document.body.classList.toggle('paused', !playing);
+    pp.textContent = playing ? '暂停' : '播放';
+  };
+  const seek = v => { t = Math.max(0, Math.min(total, v)); render(); };
+  const toggle = () => { if (t >= total) t = 0; playing = !playing; render(); };
+  const jump = d => {
+    const i = scenes.findIndex(s => t < s.start + s.dur), cur = i < 0 ? scenes.length - 1 : i;
+    seek(scenes[Math.max(0, Math.min(scenes.length - 1, cur + d))].start); playing = true;
+  };
+  pp.onclick = toggle;
+  document.getElementById('rs').onclick = () => { playing = true; seek(0); };
+  bar.onclick = e => { const r = bar.getBoundingClientRect(); seek((e.clientX - r.left) / r.width * total); };
+  addEventListener('keydown', e => {
+    if (e.code === 'Space') { e.preventDefault(); toggle(); }
+    else if (e.key === 'ArrowRight') jump(1);
+    else if (e.key === 'ArrowLeft') jump(-1);
+    else if (e.key === 'r' || e.key === 'R') { playing = true; seek(0); }
+    else if (e.key === 'f' || e.key === 'F') document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen();
+  });
+
+  /* particle network */
+  const cv = document.getElementById('bg'), cx = cv.getContext('2d');
+  const pts = Array.from({ length: 70 }, () => ({ x: Math.random() * 1920, y: Math.random() * 1080, vx: (Math.random() - .5) * .35, vy: (Math.random() - .5) * .35 }));
+  const drawBg = () => {
+    cx.clearRect(0, 0, 1920, 1080);
+    pts.forEach(p => { p.x = (p.x + p.vx + 1920) % 1920; p.y = (p.y + p.vy + 1080) % 1080; });
+    for (let i = 0; i < pts.length; i++) {
+      const a = pts[i];
+      cx.fillStyle = 'rgba(0,212,255,.55)'; cx.beginPath(); cx.arc(a.x, a.y, 1.8, 0, 6.3); cx.fill();
+      for (let j = i + 1; j < pts.length; j++) {
+        const b = pts[j], d = Math.hypot(a.x - b.x, a.y - b.y);
+        if (d < 190) { cx.strokeStyle = `rgba(123,147,255,${(1 - d / 190) * .22})`; cx.beginPath(); cx.moveTo(a.x, a.y); cx.lineTo(b.x, b.y); cx.stroke(); }
+      }
+    }
+  };
+
+  const loop = now => {
+    const dt = Math.min(.1, (now - last) / 1000); last = now;
+    if (playing && t < total) { t = Math.min(total, t + dt); render(); }
+    drawBg();
+    requestAnimationFrame(loop);
+  };
+  window.__total = total; window.__now = () => t;
+  render(); requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>

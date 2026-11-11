@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Agent Widget</title>
+  <style>
+    :root { color-scheme: light dark; }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; height: 100%; font: 14px/1.45 system-ui, sans-serif; background: #f7f7f8; color: #111; }
+    body.dark { background: #1e1e1e; color: #eee; }
+    #app { display: flex; flex-direction: column; height: 100vh; }
+    header { padding: 8px 12px; background: #4f46e5; color: #fff; font-weight: 600; display: flex; justify-content: space-between; align-items: center; }
+    #status { font-size: 12px; opacity: .9; }
+    #messages { flex: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 8px; }
+    .msg { max-width: 85%; padding: 8px 10px; border-radius: 10px; white-space: pre-wrap; word-wrap: break-word; }
+    .msg.user { align-self: flex-end; background: #4f46e5; color: #fff; }
+    .msg.assistant { align-self: flex-start; background: #fff; border: 1px solid #e3e3e3; }
+    body.dark .msg.assistant { background: #2a2a2a; border-color: #3a3a3a; }
+    .sys { align-self: center; font-size: 12px; color: #888; }
+    .err { align-self: center; font-size: 12px; color: #b91c1c; }
+    .approval { align-self: flex-start; background: #fffbeb; border: 1px solid #fde68a; border-radius: 10px; padding: 8px 10px; max-width: 85%; }
+    body.dark .approval { background: #3a3418; border-color: #6b5e1a; }
+    .approval .t { font-weight: 600; margin-bottom: 6px; }
+    .approval button { margin-right: 6px; padding: 3px 10px; cursor: pointer; }
+    .ctx { font-size: 11px; color: #6b7280; }
+    footer { display: flex; gap: 6px; padding: 8px; border-top: 1px solid #e3e3e3; background: #fff; }
+    body.dark footer { background: #242424; border-color: #333; }
+    #input { flex: 1; resize: none; height: 44px; padding: 8px; border: 1px solid #d4d4d8; border-radius: 8px; font: inherit; background: inherit; color: inherit; }
+    #send, #stop { padding: 0 14px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; }
+    #send { background: #4f46e5; color: #fff; }
+    #stop { background: #ef4444; color: #fff; display: none; }
+    #send:disabled { opacity: .5; }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <header><span>Agent</span><span id="status">connecting…</span></header>
+    <div id="messages"></div>
+    <footer>
+      <textarea id="input" placeholder="Send a message…" rows="1"></textarea>
+      <button id="send">Send</button>
+      <button id="stop">Stop</button>
+    </footer>
+  </div>
+  <script>
+  // ── Platform Widget SDK v0 — embeddable iframe ───────────────────────
+  // Reads widgetToken from the URL (set by the SDK). NEVER receives AppKey.
+  // Connects to the app-scoped WS with the widgetToken; the server resolves
+  // it into the same {appId, userId, role} principal as the app-scoped path.
+  (function () {
+    const PROTOCOL = "agent-widget";
+    const VERSION = 1;
+    const params = new URLSearchParams(location.search);
+    const token = params.get("widgetToken");
+    // Parent origin hint passed by the SDK via the URL hash, so we can pin
+    // postMessage targetOrigin from the very first message.
+    const parentOrigin = (location.hash.replace(/^#po=/, "") || null) ? decodeURIComponent(location.hash.replace(/^#po=/, "")) : null;
+    const appId = decodeURIComponent(location.pathname.match(/\/embed\/apps\/([^/]+)\/widget/)[1]);
+
+    const msgsEl = document.getElementById("messages");
+    const statusEl = document.getElementById("status");
+    const inputEl = document.getElementById("input");
+    const sendBtn = document.getElementById("send");
+    const stopBtn = document.getElementById("stop");
+
+    function fail(msg) {
+      statusEl.textContent = "error";
+      const el = document.createElement("div"); el.className = "err"; el.textContent = String(msg);
+      msgsEl.appendChild(el);
+      postToParent("agent:error", { code: "boot", message: String(msg) });
+    }
+
+    if (!token) return fail("Missing widgetToken");
+
+    // Read agentId/pageSessionId from the token payload (server already
+    // verified the signature + appId at WS connect; ownership is re-checked
+    // on subscribe). No secret is needed to read these claims.
+    let claims = null;
+    try {
+      const part = token.split(".")[1];
+      claims = JSON.parse(decodeURIComponent(escape(atob(part.replace(/-/g, "+").replace(/_/g, "/")))));
+    } catch { /* fall through; subscribe will fail server-side */ }
+    const agentId = claims && claims.agentId;
+    const pageSessionId = (claims && claims.pageSessionId) || ("ps_" + Math.random().toString(36).slice(2));
+    if (!agentId) return fail("Invalid widget token (no agent binding)");
+
+    let ws = null;
+    let destroyed = false;
+    let reconnectAttempts = 0;
+    let pageContext = null;          // set via agent:setContext (updateContext)
+    let assistantBubble = null;      // trailing assistant bubble for streaming
+    let turnBusy = false;
+
+    function setBusy(b) {
+      turnBusy = b;
+      sendBtn.disabled = b;
+      stopBtn.style.display = b ? "block" : "none";
+    }
+
+    function postToParent(type, payload) {
+      try { parent.postMessage(Object.assign({ protocol: PROTOCOL, version: VERSION, pageSessionId, type }, payload || {}), parentOrigin || "*"); } catch {}
+    }
+
+    function scrollBottom() { msgsEl.scrollTop = msgsEl.scrollHeight; }
+    function addUser(text) {
+      assistantBubble = null;
+      const el = document.createElement("div"); el.className = "msg user"; el.textContent = text;
+      msgsEl.appendChild(el); scrollBottom();
+    }
+    function appendAssistant(text) {
+      if (!assistantBubble || assistantBubble.dataset.done) {
+        assistantBubble = document.createElement("div"); assistantBubble.className = "msg assistant";
+        msgsEl.appendChild(assistantBubble);
+      }
+      assistantBubble.textContent += text; scrollBottom();
+    }
+    function addSys(text, cls) {
+      const el = document.createElement("div"); el.className = cls || "sys"; el.textContent = text;
+      msgsEl.appendChild(el); scrollBottom();
+    }
+    function addApproval(req) {
+      const el = document.createElement("div"); el.className = "approval";
+      const t = document.createElement("div"); t.className = "t"; t.textContent = "Approve " + req.toolName + "?";
+      el.appendChild(t);
+      const detail = document.createElement("div"); detail.className = "ctx";
+      try { detail.textContent = JSON.stringify(req.toolInput, null, 2); } catch { detail.textContent = String(req.toolInput); }
+      el.appendChild(detail);
+      const yes = document.createElement("button"); yes.textContent = "Approve";
+      const no = document.createElement("button"); no.textContent = "Deny";
+      yes.onclick = () => { send({ type: "approval_response", chatId: agentId, id: req.id, approved: true }); el.remove(); };
+      no.onclick = () => { send({ type: "approval_response", chatId: agentId, id: req.id, approved: false }); el.remove(); };
+      el.appendChild(document.createElement("br")); el.appendChild(yes); el.appendChild(no);
+      msgsEl.appendChild(el); scrollBottom();
+    }
+
+    function connect() {
+      const scheme = location.protocol === "https:" ? "wss" : "ws";
+      const url = scheme + "://" + location.host + "/api/apps/" + encodeURIComponent(appId) + "/ws?widgetToken=" + encodeURIComponent(token);
+      ws = new WebSocket(url);
+
+      ws.onopen = function () {
+        reconnectAttempts = 0;
+        statusEl.textContent = "connected";
+        send({ type: "subscribe", chatId: agentId });
+        postToParent("agent:ready", { agentId: agentId });
+      };
+      ws.onmessage = function (ev) {
+        let m; try { m = JSON.parse(ev.data); } catch { return; }
+        switch (m.type) {
+          case "connected": break;
+          case "history":
+            (m.messages || []).forEach(function (msg) {
+              if (msg.role === "user") addUser(msg.content);
+              else appendAssistant((msg.content || "") + "\n");
+            });
+            if (assistantBubble) assistantBubble.dataset.done = "1";
+            break;
+          case "user_message": break; // we already added it locally
+          case "assistant_message": setBusy(true); appendAssistant(m.content); break;
+          case "result": if (assistantBubble) assistantBubble.dataset.done = "1"; setBusy(false); break;
+          case "stopped": setBusy(false); break;
+          case "system_notice": addSys(m.message || m.content || "", "sys"); break;
+          case "error": addSys(m.error || "error", "err"); setBusy(false); break;
+          case "approval_request": addApproval(m); break;
+        }
+      };
+      ws.onclose = function (event) {
+        if (destroyed) return;
+        if (event && (event.code === 4001 || event.code === 4003)) {
+          statusEl.textContent = "auth error";
+          setBusy(false);
+          postToParent("agent:error", { code: "auth", message: event.reason || "Widget authentication failed" });
+          addSys(event.reason || "Widget authentication failed. Refresh the widget token.", "err");
+          return;
+        }
+        statusEl.textContent = "reconnecting…";
+        setBusy(false);
+        if (reconnectAttempts++ < 5) setTimeout(connect, Math.min(1000 * reconnectAttempts, 5000));
+        else { statusEl.textContent = "disconnected"; postToParent("agent:error", { code: "connection", message: "WS closed" }); }
+      };
+      ws.onerror = function () { /* close handler covers it */ };
+    }
+
+    function send(obj) { if (ws && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify(obj)); }
+
+    // Single send queue: both the input box and SDK agent:send route here.
+    function doSend(text) {
+      text = (text || "").trim();
+      if (!text || turnBusy) return;
+      // W4: send the typed text clean + page context as a separate field.
+      // The server wraps context into the runtime input only; history/广播
+      // show the typed text (no [page context] prefix).
+      addUser(text);
+      var msg = { type: "chat", chatId: agentId, content: text };
+      if (pageContext) { msg.pageContext = pageContext; msg.pageSessionId = pageSessionId; }
+      send(msg);
+      setBusy(true);
+    }
+
+    sendBtn.onclick = function () { doSend(inputEl.value); inputEl.value = ""; };
+    inputEl.addEventListener("keydown", function (e) {
+      if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendBtn.click(); }
+    });
+    stopBtn.onclick = function () { send({ type: "stop", chatId: agentId }); };
+
+    // ── postMessage from SDK (host page) ──
+    window.addEventListener("message", function (event) {
+      // Pin the parent origin to whichever origin first sends a valid boot,
+      // then reject all later messages from any other origin.
+      if (parentOrigin && event.origin !== parentOrigin) return;
+      const m = event.data;
+      if (!m || m.protocol !== PROTOCOL) return;
+      // Require pageSessionId on every SDK→iframe message and match our own
+      // (review P2). The SDK pins pageSessionId from our agent:ready, so boot
+      // and all later messages carry it.
+      if (!m.pageSessionId || m.pageSessionId !== pageSessionId) return;
+      switch (m.type) {
+        case "agent:boot":
+          if (m.context) pageContext = Object.assign({}, pageContext || {}, m.context);
+          break;
+        case "agent:setContext":
+          pageContext = m.context || null;
+          break;
+        case "agent:send":
+          doSend(m.content);
+          break;
+        case "agent:open": break;
+        case "agent:close": break;
+        case "agent:destroy":
+          destroyed = true;
+          if (ws) try { ws.close(); } catch {}
+          break;
+      }
+    });
+
+    connect();
+  })();
+  </script>
+</body>
+</html>

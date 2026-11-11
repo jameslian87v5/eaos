@@ -1,0 +1,6 @@
+{
+  "name": "smoke-mcp",
+  "version": "1.0.0",
+  "description": "MCP stdio smoke test server (Phase 3 anchor)",
+  "tools": ["ping"]
+}

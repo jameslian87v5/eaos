@@ -1,0 +1,227 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1180" viewBox="0 0 1600 1180">
+  <defs>
+    <style>
+      .title { font-family: "PingFang SC", "Microsoft YaHei", Arial, sans-serif; font-size: 36px; font-weight: 700; fill: #102033; }
+      .subtitle { font-family: "PingFang SC", "Microsoft YaHei", Arial, sans-serif; font-size: 15px; fill: #5b6778; }
+      .rail { fill: #17233a; }
+      .railText { font-family: "PingFang SC", "Microsoft YaHei", Arial, sans-serif; font-size: 21px; font-weight: 700; fill: #ffffff; }
+      .bandTitle { font-family: "PingFang SC", "Microsoft YaHei", Arial, sans-serif; font-size: 18px; font-weight: 700; fill: #1f2d3d; }
+      .pillTitle { font-family: "PingFang SC", "Microsoft YaHei", Arial, sans-serif; font-size: 16px; font-weight: 700; fill: #172033; }
+      .pillSub { font-family: "PingFang SC", "Microsoft YaHei", Arial, sans-serif; font-size: 12px; fill: #566579; }
+      .tiny { font-family: "PingFang SC", "Microsoft YaHei", Arial, sans-serif; font-size: 11px; fill: #697386; }
+      .note { font-family: "PingFang SC", "Microsoft YaHei", Arial, sans-serif; font-size: 13px; fill: #334155; }
+      .arrow { stroke: #64748b; stroke-width: 2; fill: none; marker-end: url(#arrow); }
+      .arrowStrong { stroke: #2563eb; stroke-width: 3; fill: none; marker-end: url(#arrowBlue); }
+      .arrowDashed { stroke: #64748b; stroke-width: 2; fill: none; stroke-dasharray: 7 6; marker-end: url(#arrow); }
+      .band1 { fill: #f2f6ff; }
+      .band2 { fill: #f3f8ff; }
+      .band3 { fill: #eefbff; }
+      .band4 { fill: #effdf7; }
+      .band5 { fill: #fff8ed; }
+      .band6 { fill: #f8fafc; }
+      .band7 { fill: #f5f7fb; }
+      .pillBlue { fill: #ffffff; stroke: #3b82f6; stroke-width: 2; }
+      .pillBlueStrong { fill: #ffffff; stroke: #1d4ed8; stroke-width: 3; }
+      .pillCyan { fill: #ffffff; stroke: #06b6d4; stroke-width: 2; }
+      .pillTeal { fill: #ffffff; stroke: #14b8a6; stroke-width: 2; }
+      .pillGreen { fill: #ffffff; stroke: #22c55e; stroke-width: 2; }
+      .pillOrange { fill: #ffffff; stroke: #f59e0b; stroke-width: 2; }
+      .pillSlate { fill: #ffffff; stroke: #64748b; stroke-width: 2; }
+      .pillRed { fill: #fff7f7; stroke: #ef4444; stroke-width: 2; }
+      .boundary { fill: none; stroke: #94a3b8; stroke-width: 2; stroke-dasharray: 9 7; }
+    </style>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#64748b"/>
+    </marker>
+    <marker id="arrowBlue" markerWidth="11" markerHeight="11" refX="9" refY="3.5" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,7 L10,3.5 z" fill="#2563eb"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="1600" height="1180" fill="#ffffff"/>
+
+  <text x="60" y="62" class="title">企业可用 MVP Agent Runtime 技术架构</text>
+  <text x="60" y="92" class="subtitle">单企业部署，预留 orgId / Profile / Policy / Capability Provider；Docker Runtime、Claude Resume、文件流转和可观测接口作为 MVP 核心。</text>
+
+  <!-- Main layers -->
+  <g transform="translate(60,120)">
+    <!-- L7 -->
+    <rect x="0" y="0" width="1480" height="120" rx="8" class="band1"/>
+    <rect x="0" y="0" width="165" height="120" rx="8" class="rail"/>
+    <text x="28" y="50" class="railText">L7 应用交互</text>
+    <text x="28" y="78" class="tiny" fill="#dbeafe">Web / API</text>
+    <rect x="205" y="28" width="210" height="64" rx="8" class="pillBlue"/>
+    <text x="235" y="55" class="pillTitle">Chat UI</text>
+    <text x="235" y="76" class="pillSub">对话、历史、审批、文件</text>
+    <rect x="455" y="28" width="210" height="64" rx="8" class="pillBlueStrong"/>
+    <text x="485" y="55" class="pillTitle">REST API</text>
+    <text x="485" y="76" class="pillSub">chat / auth / files / runtime</text>
+    <rect x="705" y="28" width="230" height="64" rx="8" class="pillBlueStrong"/>
+    <text x="735" y="55" class="pillTitle">WebSocket Gateway</text>
+    <text x="735" y="76" class="pillSub">消息流、事件广播、鉴权</text>
+    <rect x="975" y="28" width="245" height="64" rx="8" class="pillBlue"/>
+    <text x="1005" y="55" class="pillTitle">Runtime Status API</text>
+    <text x="1005" y="76" class="pillSub">状态、错误、volume usage</text>
+    <rect x="1260" y="28" width="180" height="64" rx="8" class="pillSlate"/>
+    <text x="1288" y="55" class="pillTitle">Admin-lite</text>
+    <text x="1288" y="76" class="pillSub">先 API，后 UI</text>
+
+    <!-- L6 -->
+    <rect x="0" y="135" width="1480" height="128" rx="8" class="band2"/>
+    <rect x="0" y="135" width="165" height="128" rx="8" class="rail"/>
+    <text x="28" y="188" class="railText">L6 身份上下文</text>
+    <text x="28" y="216" class="tiny" fill="#dbeafe">Identity / Context</text>
+    <rect x="205" y="166" width="230" height="64" rx="8" class="pillBlue"/>
+    <text x="235" y="193" class="pillTitle">JWT Auth</text>
+    <text x="235" y="214" class="pillSub">强 secret、过期、WS 鉴权</text>
+    <rect x="475" y="166" width="250" height="64" rx="8" class="pillBlueStrong"/>
+    <text x="505" y="193" class="pillTitle">RequestContext</text>
+    <text x="505" y="214" class="pillSub">orgId / userId / role</text>
+    <rect x="765" y="166" width="245" height="64" rx="8" class="pillBlue"/>
+    <text x="795" y="193" class="pillTitle">Ownership Guard</text>
+    <text x="795" y="214" class="pillSub">chatId、fileId、runtime 校验</text>
+    <rect x="1050" y="166" width="250" height="64" rx="8" class="pillBlue"/>
+    <text x="1080" y="193" class="pillTitle">AgentProfile 选择</text>
+    <text x="1080" y="214" class="pillSub">默认 safe profile，可扩展</text>
+
+    <!-- L5 -->
+    <rect x="0" y="278" width="1480" height="140" rx="8" class="band3"/>
+    <rect x="0" y="278" width="165" height="140" rx="8" class="rail"/>
+    <text x="28" y="334" class="railText">L5 会话编排</text>
+    <text x="28" y="362" class="tiny" fill="#dbeafe">Session Orchestration</text>
+    <rect x="205" y="312" width="230" height="64" rx="8" class="pillCyan"/>
+    <text x="235" y="339" class="pillTitle">Session</text>
+    <text x="235" y="360" class="pillSub">chat 会话、订阅者管理</text>
+    <rect x="475" y="312" width="230" height="64" rx="8" class="pillCyan"/>
+    <text x="505" y="339" class="pillTitle">MessageQueue</text>
+    <text x="505" y="360" class="pillSub">长会话输入队列</text>
+    <rect x="745" y="312" width="260" height="64" rx="8" class="pillCyan"/>
+    <text x="775" y="339" class="pillTitle">Lifecycle Hooks</text>
+    <text x="775" y="360" class="pillSub">busy / approval / subscribers</text>
+    <rect x="1045" y="312" width="250" height="64" rx="8" class="pillCyan"/>
+    <text x="1075" y="339" class="pillTitle">Approval Bridge</text>
+    <text x="1075" y="360" class="pillSub">工具审批事件转发</text>
+
+    <!-- L4 -->
+    <rect x="0" y="433" width="1480" height="152" rx="8" class="band4"/>
+    <rect x="0" y="433" width="165" height="152" rx="8" class="rail"/>
+    <text x="28" y="491" class="railText">L4 Runtime 管理</text>
+    <text x="28" y="519" class="tiny" fill="#dbeafe">Lifecycle / Policy</text>
+    <rect x="205" y="468" width="210" height="68" rx="8" class="pillTealStrong pillTeal"/>
+    <text x="235" y="496" class="pillTitle">AgentRuntime</text>
+    <text x="235" y="517" class="pillSub">local / docker 抽象</text>
+    <rect x="455" y="468" width="245" height="68" rx="8" class="pillTeal"/>
+    <text x="485" y="496" class="pillTitle">DockerAgentRuntime</text>
+    <text x="485" y="517" class="pillSub">容器 IPC、SDK 事件流</text>
+    <rect x="740" y="468" width="245" height="68" rx="8" class="pillTeal"/>
+    <text x="770" y="496" class="pillTitle">ContainerManager</text>
+    <text x="770" y="517" class="pillSub">fresh / resume / stop / delete</text>
+    <rect x="1025" y="468" width="205" height="68" rx="8" class="pillTeal"/>
+    <text x="1055" y="496" class="pillTitle">RuntimePolicy</text>
+    <text x="1055" y="517" class="pillSub">idle、TTL、quota</text>
+    <rect x="1265" y="468" width="185" height="68" rx="8" class="pillTeal"/>
+    <text x="1292" y="496" class="pillTitle">Sweeper</text>
+    <text x="1292" y="517" class="pillSub">usage、cleanup reason</text>
+
+    <!-- L3 -->
+    <rect x="0" y="600" width="1480" height="180" rx="8" class="band5"/>
+    <rect x="0" y="600" width="165" height="180" rx="8" class="rail"/>
+    <text x="28" y="664" class="railText">L3 沙盒运行时</text>
+    <text x="28" y="692" class="tiny" fill="#dbeafe">Docker Sandbox</text>
+    <rect x="205" y="620" width="540" height="138" rx="12" class="boundary"/>
+    <text x="228" y="647" class="bandTitle">每个 chat 一个 Agent 容器</text>
+    <rect x="230" y="668" width="180" height="54" rx="8" class="pillOrange"/>
+    <text x="252" y="691" class="pillTitle">Agent Entry</text>
+    <text x="252" y="710" class="pillSub">Node JS + IPC WS</text>
+    <rect x="430" y="668" width="145" height="54" rx="8" class="pillOrange"/>
+    <text x="452" y="691" class="pillTitle">Claude SDK</text>
+    <text x="452" y="710" class="pillSub">query(options)</text>
+    <rect x="595" y="668" width="125" height="54" rx="8" class="pillOrange"/>
+    <text x="617" y="691" class="pillTitle">工具执行</text>
+    <text x="617" y="710" class="pillSub">按 policy</text>
+
+    <rect x="790" y="620" width="160" height="138" rx="8" class="pillOrange"/>
+    <text x="815" y="654" class="pillTitle">/workspace</text>
+    <text x="815" y="676" class="pillSub">input / output / tmp</text>
+    <text x="815" y="698" class="pillSub">可写运行区</text>
+    <rect x="980" y="620" width="170" height="138" rx="8" class="pillOrange"/>
+    <text x="1005" y="654" class="pillTitle">/root/.claude</text>
+    <text x="1005" y="676" class="pillSub">transcript</text>
+    <text x="1005" y="698" class="pillSub">cold resume</text>
+    <rect x="1180" y="620" width="270" height="138" rx="8" class="pillOrange"/>
+    <text x="1210" y="654" class="pillTitle">/opt/agent/*</text>
+    <text x="1210" y="676" class="pillSub">plugins / mcp / config</text>
+    <text x="1210" y="698" class="pillSub">平台注入，只读</text>
+
+    <!-- L2 -->
+    <rect x="0" y="795" width="1480" height="152" rx="8" class="band4"/>
+    <rect x="0" y="795" width="165" height="152" rx="8" class="rail"/>
+    <text x="28" y="852" class="railText">L2 能力注入</text>
+    <text x="28" y="880" class="tiny" fill="#dbeafe">Capability Provider</text>
+    <rect x="205" y="828" width="255" height="68" rx="8" class="pillGreen"/>
+    <text x="235" y="856" class="pillTitle">LocalCapabilityProvider</text>
+    <text x="235" y="877" class="pillSub">MVP：本地 config</text>
+    <rect x="500" y="828" width="255" height="68" rx="8" class="pillGreen"/>
+    <text x="530" y="856" class="pillTitle">CapabilityBundle</text>
+    <text x="530" y="877" class="pillSub">sdkOptions + mounts + env</text>
+    <rect x="795" y="828" width="230" height="68" rx="8" class="pillGreen"/>
+    <text x="825" y="856" class="pillTitle">SDK Options</text>
+    <text x="825" y="877" class="pillSub">plugins / mcp / tools</text>
+    <rect x="1065" y="828" width="180" height="68" rx="8" class="pillGreen"/>
+    <text x="1095" y="856" class="pillTitle">Skill Hub</text>
+    <text x="1095" y="877" class="pillSub">未来外接</text>
+    <rect x="1275" y="828" width="175" height="68" rx="8" class="pillGreen"/>
+    <text x="1305" y="856" class="pillTitle">MCP / API</text>
+    <text x="1305" y="877" class="pillSub">未来外接</text>
+
+    <!-- L1 -->
+    <rect x="0" y="962" width="1480" height="150" rx="8" class="band7"/>
+    <rect x="0" y="962" width="165" height="150" rx="8" class="rail"/>
+    <text x="28" y="1020" class="railText">L1 持久化观测</text>
+    <text x="28" y="1048" class="tiny" fill="#dbeafe">Storage / Observability</text>
+    <rect x="205" y="998" width="230" height="64" rx="8" class="pillSlate"/>
+    <text x="235" y="1025" class="pillTitle">PostgreSQL</text>
+    <text x="235" y="1046" class="pillSub">users / chats / files</text>
+    <rect x="475" y="998" width="250" height="64" rx="8" class="pillSlate"/>
+    <text x="505" y="1025" class="pillTitle">agent_sessions</text>
+    <text x="505" y="1046" class="pillSub">status / restore / volumes</text>
+    <rect x="765" y="998" width="230" height="64" rx="8" class="pillSlate"/>
+    <text x="795" y="1025" class="pillTitle">agent_events</text>
+    <text x="795" y="1046" class="pillSub">append-only 审计</text>
+    <rect x="1035" y="998" width="205" height="64" rx="8" class="pillSlate"/>
+    <text x="1065" y="1025" class="pillTitle">Docker Volumes</text>
+    <text x="1065" y="1046" class="pillSub">workspace / claude-home</text>
+    <rect x="1280" y="998" width="170" height="64" rx="8" class="pillSlate"/>
+    <text x="1310" y="1025" class="pillTitle">Logs / Metrics</text>
+    <text x="1310" y="1046" class="pillSub">后续接入</text>
+
+    <!-- vertical main flow arrows -->
+    <path d="M560 92 L560 166" class="arrowStrong"/>
+    <path d="M600 230 L600 312" class="arrowStrong"/>
+    <path d="M705 376 L780 468" class="arrowStrong"/>
+    <path d="M865 536 L865 620" class="arrowStrong"/>
+    <path d="M1065 758 L910 828" class="arrowDashed"/>
+    <path d="M910 896 L910 998" class="arrowDashed"/>
+
+    <!-- capability arrows -->
+    <path d="M460 862 L500 862" class="arrow"/>
+    <path d="M755 862 L795 862" class="arrow"/>
+    <path d="M910 828 C900 790 1225 790 1315 758" class="arrowDashed"/>
+    <path d="M1155 828 C1145 790 1295 790 1315 758" class="arrowDashed"/>
+
+    <!-- storage arrows -->
+    <path d="M875 376 C910 410 595 930 595 998" class="arrow"/>
+    <path d="M885 536 C930 610 875 925 890 998" class="arrow"/>
+    <path d="M870 758 C910 835 1135 925 1138 998" class="arrow"/>
+  </g>
+
+  <!-- Legend -->
+  <g transform="translate(60,1142)">
+    <text x="0" y="0" class="note">主链路：</text>
+    <line x1="70" y1="-5" x2="130" y2="-5" class="arrowStrong"/>
+    <text x="150" y="0" class="note">消息与 Runtime 启动</text>
+    <line x1="330" y1="-5" x2="390" y2="-5" class="arrowDashed"/>
+    <text x="410" y="0" class="note">能力注入 / 未来扩展</text>
+    <text x="620" y="0" class="note">边界原则：workspace 可写；claude-home 只保存 resume 状态；/opt/agent/* 为平台只读注入能力。</text>
+  </g>
+</svg>

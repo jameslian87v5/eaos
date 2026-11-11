@@ -1,0 +1,330 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1820" role="img" aria-labelledby="title desc">
+  <title id="title">EAOS：企业级 Agent OS 总体架构</title>
+  <desc id="desc">AI OS 由上层业务智能体与 AI 应用、核心 Agent OS、知识中台、数据智能中台和 MaaS 模型平台组成。能力与工具、可观测和安全治理均位于 Agent OS 内部。</desc>
+  <defs>
+    <style>
+      text { font-family: Inter, Arial, "PingFang SC", "Microsoft YaHei", sans-serif; letter-spacing: 0; }
+      .title { font-size: 36px; font-weight: 700; fill: #172033; }
+      .subtitle { font-size: 15px; fill: #5e687a; }
+      .rail-code { font-size: 13px; font-weight: 700; fill: #fff; }
+      .rail-title { font-size: 20px; font-weight: 700; fill: #fff; }
+      .rail-sub { font-size: 12px; fill: #e9eef5; }
+      .band-title { font-size: 20px; font-weight: 700; }
+      .band-note { font-size: 12px; fill: #667084; }
+      .card-title { font-size: 16px; font-weight: 700; fill: #172033; }
+      .card-sub { font-size: 12px; fill: #5e687a; }
+      .item { font-size: 12.5px; fill: #344054; }
+      .tiny { font-size: 11px; fill: #737d8d; }
+      .chip-title { font-size: 13px; font-weight: 700; }
+      .card { fill: #fff; stroke-width: 1.3; }
+      .chip { fill: #fff; stroke-width: 1; }
+    </style>
+    <marker id="arrow" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
+      <path d="M0,0 L9,4.5 L0,9 z" fill="#7b8798"/>
+    </marker>
+  </defs>
+
+  <rect width="1600" height="1820" fill="#f7f8fa"/>
+  <text x="34" y="48" class="title">EAOS：企业级 Agent OS 总体架构</text>
+  <text x="34" y="76" class="subtitle">AI OS 是统一数智底座与智能体平台的总称；Agent OS 负责智能体构建、运行、能力调用与内生治理</text>
+  <rect x="1260" y="24" width="306" height="53" rx="6" fill="#fff" stroke="#cbd2dc"/>
+  <text x="1278" y="45" class="tiny">核心边界</text>
+  <text x="1278" y="64" font-size="13" font-weight="700" fill="#8b2d3b">应用自带 know-how · Agent 内生治理</text>
+
+  <!-- AI OS boundary -->
+  <rect x="22" y="98" width="1556" height="1680" rx="12" fill="none" stroke="#b9c3d0" stroke-width="1.5" stroke-dasharray="7 6"/>
+  <text x="1555" y="116" class="tiny" text-anchor="end">AI OS 统一数智基座</text>
+
+  <!-- L1: applications -->
+  <rect x="35" y="125" width="1530" height="258" rx="8" fill="#f3effb" stroke="#7665bf" stroke-width="1.4"/>
+  <rect x="35" y="125" width="140" height="258" rx="8" fill="#51449e"/>
+  <text x="105" y="158" class="rail-code" text-anchor="middle">L1</text>
+  <text x="105" y="191" class="rail-title" text-anchor="middle">业务应用</text>
+  <text x="105" y="218" class="rail-title" text-anchor="middle">与智能体</text>
+  <text x="105" y="249" class="rail-sub" text-anchor="middle">N 个业务智能体</text>
+  <text x="105" y="268" class="rail-sub" text-anchor="middle">与 AI 应用</text>
+
+  <text x="200" y="158" class="band-title" fill="#51449e">N 个业务智能体与 AI 应用</text>
+  <text x="1540" y="158" class="band-note" text-anchor="end">战略定位：管的是“AI 如何形成业务价值”</text>
+  <text x="200" y="183" class="item">围绕企业经营、业务运营、业务创新、生态协同和组织管理建设业务智能体与 AI 应用，形成可度量、可复制、可持续运营的价值闭环。</text>
+  <text x="200" y="203" class="item">应用拥有自身的业务规则、领域模型、数据空间、权限设计、前后端交互和业务责任；平台不代替应用团队的业务 know-how。</text>
+
+  <rect x="200" y="228" width="315" height="112" rx="7" class="card" stroke="#978bd0"/>
+  <text x="220" y="255" class="card-title">经营增效</text>
+  <text x="220" y="280" class="item">经营分析 · 预测决策 · 全流程提效</text>
+  <text x="220" y="302" class="item">采购、销售、库存、物流、风控 Agent</text>
+  <text x="220" y="324" class="tiny">提升钱效、人效，降低综合运营成本</text>
+
+  <rect x="535" y="228" width="315" height="112" rx="7" class="card" stroke="#978bd0"/>
+  <text x="555" y="255" class="card-title">业务创新</text>
+  <text x="555" y="280" class="item">AI 试验场 · 五纵 N 品牌场景</text>
+  <text x="555" y="302" class="item">数字营销、云服务、融合零售</text>
+  <text x="555" y="324" class="tiny">孵化新模式、新产品与新增长点</text>
+
+  <rect x="870" y="228" width="315" height="112" rx="7" class="card" stroke="#978bd0"/>
+  <text x="890" y="255" class="card-title">生态协同</text>
+  <text x="890" y="280" class="item">厂商 · 渠道伙伴 · 终端客户</text>
+  <text x="890" y="302" class="item">输出智能产品、Agent 与 Skill 服务</text>
+  <text x="890" y="324" class="tiny">从业务合作升级为数字化共生</text>
+
+  <rect x="1205" y="228" width="335" height="112" rx="7" class="card" stroke="#978bd0"/>
+  <text x="1225" y="255" class="card-title">组织管理</text>
+  <text x="1225" y="280" class="item">人机协同 · 组织效能 · 管理辅助</text>
+  <text x="1225" y="302" class="item">应用团队负责领域模型与业务结果</text>
+  <text x="1225" y="324" class="tiny">平台提供 Runtime、治理与扩展能力</text>
+
+  <line x1="800" y1="383" x2="800" y2="402" stroke="#7b8798" stroke-width="1.4" marker-end="url(#arrow)"/>
+
+  <!-- L2: Agent OS -->
+  <rect x="35" y="410" width="1530" height="590" rx="8" fill="#eaf2fa" stroke="#315d86" stroke-width="1.6"/>
+  <rect x="35" y="410" width="140" height="590" rx="8" fill="#2f4d6a"/>
+  <text x="105" y="445" class="rail-code" text-anchor="middle">L2</text>
+  <text x="105" y="480" class="rail-title" text-anchor="middle">AI Agent</text>
+  <text x="105" y="508" class="rail-title" text-anchor="middle">平台</text>
+  <text x="105" y="540" class="rail-sub" text-anchor="middle">Agent OS</text>
+  <text x="105" y="564" class="rail-sub" text-anchor="middle">智能体核心</text>
+
+  <text x="200" y="446" class="band-title" fill="#2f4d6a">企业级 AI Agent 平台（Agent OS）</text>
+  <text x="1540" y="446" class="band-note" text-anchor="end">只治理 Agent 平台内部，不替代业务应用</text>
+  <text x="200" y="470" class="item">统一承载 Agent 的构建、运行、协同、能力调用、自演进与治理；向下消费知识、数据和模型服务，向上支撑 N 个业务应用。</text>
+
+  <!-- build -->
+  <rect x="200" y="494" width="420" height="222" rx="7" class="card" stroke="#3d7caf" stroke-width="1.5"/>
+  <rect x="200" y="494" width="420" height="8" rx="4" fill="#3d7caf"/>
+  <text x="222" y="530" class="card-title">构建态 · Agent 构建与编排</text>
+  <rect x="222" y="549" width="184" height="48" rx="6" class="chip" stroke="#76a9cf"/>
+  <text x="314" y="570" class="chip-title" fill="#285e87" text-anchor="middle">Agent 设计</text>
+  <text x="314" y="587" class="tiny" text-anchor="middle">角色 · 目标 · Prompt · 模板</text>
+  <rect x="414" y="549" width="184" height="48" rx="6" class="chip" stroke="#76a9cf"/>
+  <text x="506" y="570" class="chip-title" fill="#285e87" text-anchor="middle">编排调度</text>
+  <text x="506" y="587" class="tiny" text-anchor="middle">任务 · 流程 · 路由 · 依赖</text>
+  <rect x="222" y="609" width="184" height="48" rx="6" class="chip" stroke="#76a9cf"/>
+  <text x="314" y="630" class="chip-title" fill="#285e87" text-anchor="middle">多 Agent 协作</text>
+  <text x="314" y="647" class="tiny" text-anchor="middle">分工 · 委托 · 升级</text>
+  <rect x="414" y="609" width="184" height="48" rx="6" class="chip" stroke="#76a9cf"/>
+  <text x="506" y="630" class="chip-title" fill="#285e87" text-anchor="middle">自演进</text>
+  <text x="506" y="647" class="tiny" text-anchor="middle">候选版本 · 沙箱验证 · 灰度</text>
+  <rect x="222" y="671" width="376" height="27" rx="5" fill="#e7f1f9" stroke="#76a9cf"/>
+  <text x="410" y="689" class="tiny" text-anchor="middle">构建入口：Console · SDK / API · 模板</text>
+
+  <!-- runtime -->
+  <rect x="645" y="494" width="420" height="222" rx="7" class="card" stroke="#177f9f" stroke-width="1.5"/>
+  <rect x="645" y="494" width="420" height="8" rx="4" fill="#177f9f"/>
+  <text x="667" y="530" class="card-title">运行态 · Runtime 与 Harness</text>
+  <rect x="667" y="549" width="184" height="48" rx="6" class="chip" stroke="#68adc1"/>
+  <text x="759" y="570" class="chip-title" fill="#126b86" text-anchor="middle">Agent Runtime</text>
+  <text x="759" y="587" class="tiny" text-anchor="middle">Session · 生命周期 · 事件流</text>
+  <rect x="869" y="549" width="174" height="48" rx="6" class="chip" stroke="#68adc1"/>
+  <text x="956" y="570" class="chip-title" fill="#126b86" text-anchor="middle">Agent Harness</text>
+  <text x="956" y="587" class="tiny" text-anchor="middle">规划 · 推理 · Tool Use</text>
+  <rect x="667" y="609" width="184" height="48" rx="6" class="chip" stroke="#68adc1"/>
+  <text x="759" y="630" class="chip-title" fill="#126b86" text-anchor="middle">Engine Adapter</text>
+  <text x="759" y="647" class="tiny" text-anchor="middle">Claude · Pi · 其他引擎</text>
+  <rect x="869" y="609" width="174" height="48" rx="6" class="chip" stroke="#68adc1"/>
+  <text x="956" y="630" class="chip-title" fill="#126b86" text-anchor="middle">沙箱与状态</text>
+  <text x="956" y="647" class="tiny" text-anchor="middle">Workspace · Memory · Checkpoint</text>
+  <rect x="667" y="671" width="376" height="27" rx="5" fill="#e6f5f8" stroke="#68adc1"/>
+  <text x="855" y="689" class="tiny" text-anchor="middle">稳定契约：run · events · approval · resume · health</text>
+
+  <!-- capabilities -->
+  <rect x="1090" y="494" width="450" height="222" rx="7" class="card" stroke="#3b8b73" stroke-width="1.5"/>
+  <rect x="1090" y="494" width="450" height="8" rx="4" fill="#3b8b73"/>
+  <text x="1112" y="530" class="card-title">能力与工具 · Agent 可执行能力</text>
+  <rect x="1112" y="549" width="126" height="48" rx="6" class="chip" stroke="#76b49e"/>
+  <text x="1175" y="570" class="chip-title" fill="#246b55" text-anchor="middle">Skill Hub</text>
+  <text x="1175" y="587" class="tiny" text-anchor="middle">发布 · 审核 · 版本</text>
+  <rect x="1250" y="549" width="126" height="48" rx="6" class="chip" stroke="#76b49e"/>
+  <text x="1313" y="570" class="chip-title" fill="#246b55" text-anchor="middle">MCP 网关</text>
+  <text x="1313" y="587" class="tiny" text-anchor="middle">发现 · 校验 · 调用</text>
+  <rect x="1388" y="549" width="130" height="48" rx="6" class="chip" stroke="#76b49e"/>
+  <text x="1453" y="570" class="chip-title" fill="#246b55" text-anchor="middle">Plugin / Tool</text>
+  <text x="1453" y="587" class="tiny" text-anchor="middle">注册 · 组合 · 透传</text>
+  <rect x="1112" y="609" width="406" height="48" rx="6" class="chip" stroke="#76b49e"/>
+  <text x="1315" y="630" class="chip-title" fill="#246b55" text-anchor="middle">企业系统能力化</text>
+  <text x="1315" y="647" class="tiny" text-anchor="middle">ERP · CRM · OA · 财务 · 流程引擎 → API / MCP / CLI / Connector</text>
+  <rect x="1112" y="671" width="406" height="27" rx="5" fill="#e6f5ef" stroke="#76b49e"/>
+  <text x="1315" y="689" class="tiny" text-anchor="middle">能力目录、授权、版本和调用边界由 Agent OS 统一编排</text>
+
+  <!-- unified governance -->
+  <rect x="200" y="744" width="1340" height="218" rx="7" fill="#fff" stroke="#a74455" stroke-width="1.5"/>
+  <rect x="200" y="744" width="1340" height="8" rx="4" fill="#a74455"/>
+  <text x="222" y="780" class="card-title">统一 AgentOps 与安全治理 · Agent OS 内部一体化治理面</text>
+  <text x="1540" y="780" class="band-note" text-anchor="end">可观测、审计、安全、权限不再拆成两套</text>
+  <rect x="222" y="802" width="196" height="42" rx="6" fill="#fcebed" stroke="#c86672"/>
+  <text x="320" y="827" class="item" text-anchor="middle">身份 · 部门 · 应用 · Agent</text>
+  <rect x="435" y="802" width="196" height="42" rx="6" fill="#fcebed" stroke="#c86672"/>
+  <text x="533" y="827" class="item" text-anchor="middle">权限 · 能力边界 · 风险分级</text>
+  <rect x="648" y="802" width="196" height="42" rx="6" fill="#fcebed" stroke="#c86672"/>
+  <text x="746" y="827" class="item" text-anchor="middle">人工审批 · 隔离 · 熔断</text>
+  <rect x="861" y="802" width="196" height="42" rx="6" fill="#faeeda" stroke="#cf9448"/>
+  <text x="959" y="827" class="item" text-anchor="middle">行为审计 · Run · Trace</text>
+  <rect x="1074" y="802" width="196" height="42" rx="6" fill="#faeeda" stroke="#cf9448"/>
+  <text x="1172" y="827" class="item" text-anchor="middle">健康 · 告警 · SLA · 取证</text>
+  <rect x="1287" y="802" width="231" height="42" rx="6" fill="#faeeda" stroke="#cf9448"/>
+  <text x="1402" y="827" class="item" text-anchor="middle">Token · 成本 · KPI 归因</text>
+  <rect x="222" y="868" width="1296" height="62" rx="6" fill="#fff8ed" stroke="#d3a35d"/>
+  <text x="870" y="893" class="item" text-anchor="middle">治理原则：默认拒绝 · 最小权限 · 人在回路 · 全程留痕 · 风险可提示 · 版本可回滚</text>
+  <text x="870" y="914" class="tiny" text-anchor="middle">Agent OS 可以收窄应用权限，但应用或 Hook 不能绕过平台治理守卫</text>
+
+  <line x1="800" y1="1000" x2="800" y2="1019" stroke="#7b8798" stroke-width="1.4" marker-end="url(#arrow)"/>
+
+  <!-- L3: knowledge -->
+  <rect x="35" y="1028" width="1530" height="194" rx="8" fill="#eef7e9" stroke="#5c913a" stroke-width="1.4"/>
+  <rect x="35" y="1028" width="140" height="194" rx="8" fill="#3e7420"/>
+  <text x="105" y="1061" class="rail-code" text-anchor="middle">L3</text>
+  <text x="105" y="1095" class="rail-title" text-anchor="middle">知识中台</text>
+  <text x="105" y="1123" class="rail-sub" text-anchor="middle">企业知识资产</text>
+  <text x="105" y="1143" class="rail-sub" text-anchor="middle">Knowledge Plane</text>
+  <text x="200" y="1061" class="band-title" fill="#3e7420">知识中台：企业本体语义与本体知识图谱</text>
+  <text x="1540" y="1061" class="band-note" text-anchor="end">沉淀显性知识、隐性经验与流程知识</text>
+  <rect x="200" y="1081" width="390" height="110" rx="7" class="card" stroke="#7ca860" stroke-width="1.4"/>
+  <text x="395" y="1110" class="card-title" text-anchor="middle">本体与语义骨架</text>
+  <text x="395" y="1135" class="item" text-anchor="middle">业务对象 · 组织关系 · 指标口径</text>
+  <text x="395" y="1157" class="item" text-anchor="middle">本体知识图谱 · 语义映射</text>
+  <text x="395" y="1178" class="tiny" text-anchor="middle">知识的统一解释层</text>
+  <rect x="610" y="1081" width="390" height="110" rx="7" class="card" stroke="#7ca860"/>
+  <text x="805" y="1110" class="card-title" text-anchor="middle">显性知识与流程知识</text>
+  <text x="805" y="1135" class="item" text-anchor="middle">制度政策 · SOP · BPM · 业务规则</text>
+  <text x="805" y="1157" class="item" text-anchor="middle">代码 · 产品目录 · 数据目录 · KPI</text>
+  <text x="805" y="1178" class="tiny" text-anchor="middle">企业正式知识与可执行流程</text>
+  <rect x="1020" y="1081" width="520" height="110" rx="7" class="card" stroke="#7ca860"/>
+  <text x="1280" y="1110" class="card-title" text-anchor="middle">隐性经验与知识服务</text>
+  <text x="1280" y="1135" class="item" text-anchor="middle">项目案例 · 专家经验 · 异常处理 · 复盘沉淀</text>
+  <text x="1280" y="1157" class="item" text-anchor="middle">RAG 检索 · 图谱查询 · 知识授权 · 质量更新</text>
+  <text x="1280" y="1178" class="tiny" text-anchor="middle">通过标准知识服务供 Agent OS 与业务应用使用</text>
+
+  <line x1="800" y1="1222" x2="800" y2="1241" stroke="#7b8798" stroke-width="1.4" marker-end="url(#arrow)"/>
+
+  <!-- L4: data -->
+  <rect x="35" y="1250" width="1530" height="295" rx="8" fill="#eaf7f4" stroke="#2d8c7b" stroke-width="1.4"/>
+  <rect x="35" y="1250" width="140" height="295" rx="8" fill="#176b60"/>
+  <text x="105" y="1283" class="rail-code" text-anchor="middle">L4</text>
+  <text x="105" y="1317" class="rail-title" text-anchor="middle">数据智能</text>
+  <text x="105" y="1345" class="rail-title" text-anchor="middle">中台</text>
+  <text x="105" y="1376" class="rail-sub" text-anchor="middle">Data Plane</text>
+  <text x="105" y="1400" class="rail-sub" text-anchor="middle">数据资产底座</text>
+  <text x="200" y="1283" class="band-title" fill="#176b60">数据智能中台：企业全域数据底座与 AI+BI 服务</text>
+  <text x="1540" y="1283" class="band-note" text-anchor="end">数据治理、数据模型、数据交付与价值运营</text>
+
+  <rect x="200" y="1303" width="1340" height="42" rx="6" fill="#d8f0eb" stroke="#63aa9e"/>
+  <text x="870" y="1329" class="item" text-anchor="middle">数据团队转型：全栈复合角色 · 项目化交付 · 资源向底座建设、业务交付与价值运营倾斜</text>
+
+  <rect x="200" y="1360" width="315" height="118" rx="7" class="card" stroke="#63aa9e" stroke-width="1.4"/>
+  <text x="357" y="1387" class="card-title" text-anchor="middle">数据模型建设</text>
+  <text x="220" y="1412" class="item">ODS / DWD / DWS / ADS 分层模型</text>
+  <text x="220" y="1434" class="item">主题模型 · 指标口径 · ETL 优化</text>
+  <text x="220" y="1456" class="tiny">元数据 · 版本管理 · 公共模型复用</text>
+
+  <rect x="535" y="1360" width="315" height="118" rx="7" class="card" stroke="#63aa9e"/>
+  <text x="692" y="1387" class="card-title" text-anchor="middle">数据治理</text>
+  <text x="555" y="1412" class="item">指标字典 · 主数据 · 业务标准</text>
+  <text x="555" y="1434" class="item">质量规则 · 血缘 · 问题闭环</text>
+  <text x="555" y="1456" class="tiny">权限治理 · 生命周期 · 源头治理</text>
+
+  <rect x="870" y="1360" width="315" height="118" rx="7" class="card" stroke="#63aa9e"/>
+  <text x="1027" y="1387" class="card-title" text-anchor="middle">业务数据交付</text>
+  <text x="890" y="1412" class="item">经营报表 · BI 看板 · 专项分析</text>
+  <text x="890" y="1434" class="item">高价值需求优先，临时取数沉淀模型</text>
+  <text x="890" y="1456" class="tiny">面向业务培训，推动自助取数</text>
+
+  <rect x="1205" y="1360" width="335" height="118" rx="7" class="card" stroke="#63aa9e"/>
+  <text x="1372" y="1387" class="card-title" text-anchor="middle">数据价值运营</text>
+  <text x="1225" y="1412" class="item">需求池项目化 · 优先级与资源管理</text>
+  <text x="1225" y="1434" class="item">使用量 · 复用率 · 业务价值评价</text>
+  <text x="1225" y="1456" class="tiny">数据产品与生态服务输出</text>
+
+  <rect x="200" y="1495" width="1340" height="31" rx="6" fill="#d8f0eb" stroke="#63aa9e"/>
+  <text x="870" y="1516" class="tiny" text-anchor="middle">标准数据服务：数据 API · 查询服务 · 事件服务 · 指标服务　|　向知识中台、MaaS、Agent OS、AI+BI 与业务应用统一供给</text>
+
+  <line x1="800" y1="1545" x2="800" y2="1564" stroke="#7b8798" stroke-width="1.4" marker-end="url(#arrow)"/>
+
+  <!-- L5: MaaS -->
+  <rect x="35" y="1573" width="1530" height="195" rx="8" fill="#fff3e5" stroke="#c58a43" stroke-width="1.4"/>
+  <rect x="35" y="1573" width="140" height="195" rx="8" fill="#a96524"/>
+  <text x="105" y="1606" class="rail-code" text-anchor="middle">L5</text>
+  <text x="105" y="1640" class="rail-title" text-anchor="middle">MaaS</text>
+  <text x="105" y="1668" class="rail-title" text-anchor="middle">模型平台</text>
+  <text x="105" y="1700" class="rail-sub" text-anchor="middle">Model Plane</text>
+  <text x="105" y="1723" class="rail-sub" text-anchor="middle">模型 · 算力 · 服务</text>
+  <text x="200" y="1606" class="band-title" fill="#a96524">企业级 AI MaaS 平台：统一模型与算力服务底座</text>
+  <text x="1540" y="1606" class="band-note" text-anchor="end">模型生命周期能力统一归入 MaaS</text>
+  <text x="200" y="1630" class="item">管的是“模型、算力和模型作为服务”：覆盖准备、训练、微调、评测、纳管、部署、推理、路由、运营和安全管理。</text>
+
+  <rect x="200" y="1650" width="315" height="82" rx="7" class="card" stroke="#d2a067" stroke-width="1.4"/>
+  <text x="357" y="1675" class="card-title" text-anchor="middle">模型全生命周期 · MLOps</text>
+  <text x="357" y="1698" class="item" text-anchor="middle">数据准备 · 训练微调 · 评测选型</text>
+  <text x="357" y="1718" class="tiny" text-anchor="middle">注册 · 版本 · 审批 · 发布 · 回滚</text>
+
+  <rect x="535" y="1650" width="315" height="82" rx="7" class="card" stroke="#d2a067"/>
+  <text x="692" y="1675" class="card-title" text-anchor="middle">混合算力与推理服务</text>
+  <text x="692" y="1698" class="item" text-anchor="middle">本地私有算力 + 云端弹性算力</text>
+  <text x="692" y="1718" class="tiny" text-anchor="middle">按需调度 · 配额 · 隔离 · 成本核算</text>
+
+  <rect x="870" y="1650" width="315" height="82" rx="7" class="card" stroke="#d2a067"/>
+  <text x="1027" y="1675" class="card-title" text-anchor="middle">统一模型服务网关</text>
+  <text x="1027" y="1698" class="item" text-anchor="middle">统一 API / SDK · 多模型路由</text>
+  <text x="1027" y="1718" class="tiny" text-anchor="middle">负载 · 缓存 · 限流 · 降级 · 熔断</text>
+
+  <rect x="1205" y="1650" width="335" height="82" rx="7" class="card" stroke="#d2a067"/>
+  <text x="1372" y="1675" class="card-title" text-anchor="middle">模型安全与服务运营</text>
+  <text x="1372" y="1698" class="item" text-anchor="middle">质量 · 延迟 · Token · SLA · 配额</text>
+  <text x="1372" y="1718" class="tiny" text-anchor="middle">密钥 · 权限 · 审计 · 内容安全</text>
+
+  <text x="200" y="1754" class="tiny">保持芯片、云服务、模型供应商和推理引擎可替换；向 Agent OS、AI+BI 和业务应用提供稳定标准模型服务，不承担 Agent 编排。</text>
+
+  <!-- relationship legend -->
+  <rect x="420" y="1785" width="760" height="22" rx="5" fill="#fff" stroke="#cbd2dc"/>
+  <text x="800" y="1800" class="tiny" text-anchor="middle">向上：标准能力供给　|　向下：数据、知识、模型与算力服务　|　横向：Agent OS 内部治理闭环</text>
+  <!-- ===== 建设状态标注层（2026-10-21 追加，原图元素未动）：绿点=已建 黄点=进行中/部分 灰点=远期/未建；L1/L3/L4/L5=外部 ===== -->
+  <g id="build-status-overlay">
+    <!-- 构建态 -->
+    <circle cx="232" cy="549" r="9" fill="#22c55e" stroke="#fff" stroke-width="2.2"/>
+    <circle cx="424" cy="549" r="9" fill="#8494a7" stroke="#fff" stroke-width="2.2"/>
+    <circle cx="232" cy="609" r="9" fill="#8494a7" stroke="#fff" stroke-width="2.2"/>
+    <circle cx="424" cy="609" r="9" fill="#8494a7" stroke="#fff" stroke-width="2.2"/>
+    <circle cx="232" cy="671" r="9" fill="#f59e0b" stroke="#fff" stroke-width="2.2"/>
+    <!-- 运行态 -->
+    <circle cx="677" cy="549" r="9" fill="#22c55e" stroke="#fff" stroke-width="2.2"/>
+    <circle cx="879" cy="549" r="9" fill="#22c55e" stroke="#fff" stroke-width="2.2"/>
+    <circle cx="677" cy="609" r="9" fill="#f59e0b" stroke="#fff" stroke-width="2.2"/>
+    <circle cx="879" cy="609" r="9" fill="#f59e0b" stroke="#fff" stroke-width="2.2"/>
+    <circle cx="677" cy="671" r="9" fill="#22c55e" stroke="#fff" stroke-width="2.2"/>
+    <!-- 能力与工具 -->
+    <circle cx="1122" cy="549" r="9" fill="#f59e0b" stroke="#fff" stroke-width="2.2"/>
+    <circle cx="1260" cy="549" r="9" fill="#22c55e" stroke="#fff" stroke-width="2.2"/>
+    <circle cx="1398" cy="549" r="9" fill="#22c55e" stroke="#fff" stroke-width="2.2"/>
+    <circle cx="1122" cy="609" r="9" fill="#22c55e" stroke="#fff" stroke-width="2.2"/>
+    <circle cx="1122" cy="671" r="9" fill="#22c55e" stroke="#fff" stroke-width="2.2"/>
+    <!-- 统一 AgentOps 与安全治理 -->
+    <circle cx="232" cy="802" r="9" fill="#22c55e" stroke="#fff" stroke-width="2.2"/>
+    <circle cx="445" cy="802" r="9" fill="#f59e0b" stroke="#fff" stroke-width="2.2"/>
+    <circle cx="658" cy="802" r="9" fill="#f59e0b" stroke="#fff" stroke-width="2.2"/>
+    <circle cx="871" cy="802" r="9" fill="#f59e0b" stroke="#fff" stroke-width="2.2"/>
+    <circle cx="1084" cy="802" r="9" fill="#f59e0b" stroke="#fff" stroke-width="2.2"/>
+    <circle cx="1297" cy="802" r="9" fill="#8494a7" stroke="#fff" stroke-width="2.2"/>
+    <circle cx="232" cy="868" r="9" fill="#f59e0b" stroke="#fff" stroke-width="2.2"/>
+    <!-- L2 平台标识 -->
+    <rect x="1390" y="414" width="160" height="16" rx="5" fill="#e4f7ec" stroke="#22c55e"/>
+    <text x="1470" y="426" font-size="9.5" fill="#16a34a" text-anchor="middle">本平台 · EAOS</text>
+    <!-- 外部标识 -->
+    <rect x="1450" y="129" width="100" height="16" rx="5" fill="#eef1f5" stroke="#98a2b3"/>
+    <text x="1500" y="141" font-size="9" fill="#5b6472" text-anchor="middle">外部 · 应用自建</text>
+    <rect x="1450" y="1032" width="100" height="16" rx="5" fill="#eef1f5" stroke="#98a2b3"/>
+    <text x="1500" y="1044" font-size="9" fill="#5b6472" text-anchor="middle">外部 · 兄弟系统</text>
+    <rect x="1450" y="1254" width="100" height="16" rx="5" fill="#eef1f5" stroke="#98a2b3"/>
+    <text x="1500" y="1266" font-size="9" fill="#5b6472" text-anchor="middle">外部 · 兄弟系统</text>
+    <rect x="1450" y="1577" width="100" height="16" rx="5" fill="#eef1f5" stroke="#98a2b3"/>
+    <text x="1500" y="1589" font-size="9" fill="#5b6472" text-anchor="middle">外部 · 兄弟系统</text>
+    <!-- 图例 -->
+    <rect x="1188" y="1784" width="374" height="26" rx="5" fill="#fff" stroke="#cbd2dc"/>
+    <text x="1198" y="1801" font-size="9.5" fill="#5e687a">建设状态（2026-10-21）：</text>
+    <circle cx="1330" cy="1797" r="7" fill="#22c55e"/>
+    <text x="1339" y="1801" font-size="9.5" fill="#344054">已建</text>
+    <circle cx="1384" cy="1797" r="7" fill="#f59e0b"/>
+    <text x="1393" y="1801" font-size="9.5" fill="#344054">进行中/部分</text>
+    <circle cx="1458" cy="1797" r="7" fill="#8494a7"/>
+    <text x="1467" y="1801" font-size="9.5" fill="#344054">远期/未建</text>
+    <rect x="1520" y="1792" width="11" height="11" fill="#eef1f5" stroke="#98a2b3"/>
+    <text x="1535" y="1801" font-size="9.5" fill="#344054">外部</text>
+  </g>
+</svg>
