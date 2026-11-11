@@ -81,7 +81,7 @@ This intersection is empty today:
 
 ## Architecture
 
-![Overall architecture (with build-status annotations)](docs/assets/github/eaos-architecture.svg)
+![EAOS technical architecture — control plane / data plane separation](docs/assets/github/eaos-architecture-tech.svg)
 
 The control plane (agent definitions / profiles / entitlements / audit) is strictly separated from the data plane (container runtime / SDK query / tool execution). All capabilities are translated through `CapabilityProvider.resolve()` before injection — frontends and users **never** set tools, plugins, or host paths directly.
 

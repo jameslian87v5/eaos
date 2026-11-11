@@ -1,0 +1,165 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1240" height="884" viewBox="0 0 1240 884" font-family="-apple-system, 'SF Pro Text', 'Helvetica Neue', Arial, sans-serif">
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#475569"/>
+    </marker>
+    <marker id="arrOrange" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#d97706"/>
+    </marker>
+    <marker id="arrGray" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#94a3b8"/>
+    </marker>
+    <style>
+      .band-label { font-size: 13px; font-weight: 700; letter-spacing: 1.5px; }
+      .box-title { font-size: 14.5px; font-weight: 700; fill: #0f172a; }
+      .box-sub { font-size: 11.5px; fill: #475569; }
+      .arrow-label { font-size: 11px; fill: #64748b; }
+      .cp { fill: #ffffff; stroke: #6366f1; stroke-width: 1.2; rx: 8; }
+      .host-box { fill: #ffffff; stroke: #0284c7; stroke-width: 1.2; }
+      .dp-box { fill: #ffffff; stroke: #16a34a; stroke-width: 1.2; }
+    </style>
+  </defs>
+
+  <rect x="0" y="0" width="1240" height="884" fill="#f8fafc"/>
+
+  <text x="40" y="42" font-size="24" font-weight="800" fill="#0f172a">EAOS — Technical Architecture</text>
+  <text x="40" y="62" font-size="12.5" fill="#64748b">Control plane declares intent · CapabilityProvider.resolve() is the only bridge · Data plane executes in isolated runtimes</text>
+
+  <!-- ══════════ CONTROL PLANE ══════════ -->
+  <rect x="40" y="80" width="1160" height="140" rx="10" fill="#eef2ff" stroke="#6366f1" stroke-width="1.5"/>
+  <text x="58" y="102" class="band-label" fill="#4f46e5">CONTROL PLANE — declares intent, never executes</text>
+
+  <rect x="60" y="114" width="270" height="88" rx="8" class="cp"/>
+  <text x="76" y="140" class="box-title">Agent definitions &amp; profiles</text>
+  <text x="76" y="160" class="box-sub">identity, tool profiles, runtime policy</text>
+  <text x="76" y="177" class="box-sub">approvalRequired = tools − allowed − denied</text>
+
+  <rect x="350" y="114" width="270" height="88" rx="8" class="cp"/>
+  <text x="366" y="140" class="box-title">Entitlements</text>
+  <text x="366" y="160" class="box-sub">org × app × agent · deny-by-default</text>
+  <text x="366" y="177" class="box-sub">effective = app allowlist ∩ org grant ∩ activation</text>
+
+  <rect x="640" y="114" width="270" height="88" rx="8" class="cp"/>
+  <text x="656" y="140" class="box-title">Skill &amp; MCP registries</text>
+  <text x="656" y="160" class="box-sub">skills.json · mcp.json — shared pool</text>
+  <text x="656" y="177" class="box-sub">ZIP quarantine + review before enable</text>
+
+  <rect x="930" y="114" width="250" height="88" rx="8" class="cp"/>
+  <text x="946" y="140" class="box-title">Audit log</text>
+  <text x="946" y="160" class="box-sub">grants · approvals · capability changes</text>
+  <text x="946" y="177" class="box-sub">immutable, org-scoped reads</text>
+
+  <!-- bridge arrow control plane → resolve() -->
+  <line x1="770" y1="220" x2="770" y2="330" stroke="#d97706" stroke-width="2" stroke-dasharray="6 4" marker-end="url(#arrOrange)"/>
+
+  <!-- ══════════ CLIENT ══════════ -->
+  <rect x="40" y="340" width="170" height="130" rx="8" fill="#ffffff" stroke="#334155" stroke-width="1.5"/>
+  <text x="56" y="368" class="box-title">React SPA</text>
+  <text x="56" y="388" class="box-sub">chat UI · admin console</text>
+  <text x="56" y="405" class="box-sub">A2UI inline cards</text>
+  <text x="56" y="428" class="box-sub">WS (JWT) + REST</text>
+  <text x="56" y="445" class="box-sub">approvals rendered inline</text>
+
+  <!-- client ⇄ server.ts -->
+  <line x1="210" y1="382" x2="288" y2="382" stroke="#475569" stroke-width="2" marker-end="url(#arr)" marker-start="url(#arr)"/>
+  <text x="212" y="372" class="arrow-label">WS + REST</text>
+
+  <!-- ══════════ HOST ══════════ -->
+  <rect x="290" y="260" width="910" height="280" rx="10" fill="#f0f9ff" stroke="#0284c7" stroke-width="1.5"/>
+  <text x="308" y="282" class="band-label" fill="#0369a1">HOST (Node.js · Express + WebSocket)</text>
+
+  <rect x="310" y="330" width="190" height="140" rx="8" class="host-box"/>
+  <text x="326" y="356" class="box-title">server.ts</text>
+  <text x="326" y="376" class="box-sub">HTTP + WS entry</text>
+  <text x="326" y="393" class="box-sub">JWT auth · org-scoped routes</text>
+  <text x="326" y="410" class="box-sub">fail-fast JWT secret gate</text>
+  <text x="326" y="427" class="box-sub">session registry (userId:chatId)</text>
+
+  <rect x="530" y="330" width="200" height="140" rx="8" class="host-box"/>
+  <text x="546" y="356" class="box-title">session.ts</text>
+  <text x="546" y="376" class="box-sub">orchestrator per chat</text>
+  <text x="546" y="393" class="box-sub">messages ↔ SDK event stream</text>
+  <text x="546" y="410" class="box-sub">A2UI blocking tool channel</text>
+  <text x="546" y="427" class="box-sub">broadcast to subscribers</text>
+
+  <!-- server.ts → session.ts -->
+  <line x1="500" y1="382" x2="528" y2="382" stroke="#475569" stroke-width="2" marker-end="url(#arr)"/>
+
+  <rect x="770" y="330" width="210" height="140" rx="8" fill="#fef3c7" stroke="#d97706" stroke-width="2"/>
+  <text x="786" y="356" class="box-title">capability-provider.ts</text>
+  <text x="786" y="376" class="box-sub" font-weight="700" fill="#b45309">resolve() — the only bridge</text>
+  <text x="786" y="393" class="box-sub">→ CapabilityBundle {</text>
+  <text x="786" y="408" class="box-sub">    sdkOptions · mounts · env }</text>
+  <text x="786" y="427" class="box-sub">users/frontends never set tools,</text>
+  <text x="786" y="442" class="box-sub">plugins or host paths directly</text>
+
+  <rect x="1010" y="330" width="170" height="140" rx="8" class="host-box"/>
+  <text x="1026" y="356" class="box-title">ApprovalManager</text>
+  <text x="1026" y="376" class="box-sub">host-side approvals</text>
+  <text x="1026" y="393" class="box-sub">dangerous tools gated</text>
+  <text x="1026" y="410" class="box-sub">pending approvals protect</text>
+  <text x="1026" y="427" class="box-sub">runtime from idle-stop</text>
+
+  <!-- session ↔ approval -->
+  <line x1="730" y1="400" x2="1008" y2="400" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#arrGray)" marker-start="url(#arrGray)"/>
+
+  <!-- SQLite -->
+  <rect x="310" y="486" width="620" height="40" rx="8" fill="#ffffff" stroke="#475569" stroke-width="1.2"/>
+  <text x="326" y="511" class="box-sub" font-size="12.5">SQLite (better-sqlite3, WAL) — users · chats · messages · agent_sessions · entitlements · audit events</text>
+  <line x1="620" y1="470" x2="620" y2="484" stroke="#475569" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <!-- AgentRuntime interface label -->
+  <text x="480" y="562" class="arrow-label" font-size="12" font-weight="700" fill="#0f172a">AgentRuntime interface — sendMessage · stop · events</text>
+  <line x1="620" y1="540" x2="620" y2="556" stroke="#475569" stroke-width="2" marker-end="url(#arr)"/>
+  <line x1="620" y1="556" x2="240" y2="600" stroke="#475569" stroke-width="2" marker-end="url(#arr)"/>
+  <line x1="620" y1="556" x2="800" y2="600" stroke="#475569" stroke-width="2" marker-end="url(#arr)"/>
+
+  <!-- resolve() injection arrows to data plane -->
+  <line x1="875" y1="470" x2="320" y2="618" stroke="#d97706" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#arrOrange)"/>
+  <line x1="900" y1="470" x2="980" y2="598" stroke="#d97706" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#arrOrange)"/>
+
+  <!-- ══════════ DATA PLANE ══════════ -->
+  <rect x="40" y="600" width="1160" height="240" rx="10" fill="#f0fdf4" stroke="#16a34a" stroke-width="1.5"/>
+  <text x="58" y="622" class="band-label" fill="#15803d">DATA PLANE — executes, in isolated runtimes</text>
+
+  <!-- Local runtime -->
+  <rect x="60" y="636" width="350" height="180" rx="8" class="dp-box"/>
+  <text x="76" y="662" class="box-title">LocalAgentRuntime</text>
+  <text x="76" y="680" class="box-sub" font-weight="700">RUNTIME_MODE=local</text>
+  <text x="76" y="702" class="box-sub">in-process Claude Agent SDK query()</text>
+  <text x="76" y="719" class="box-sub">MessageQueue async-iterator = streaming input,</text>
+  <text x="76" y="736" class="box-sub">multi-turn dialogue in one long-lived query</text>
+  <text x="76" y="756" class="box-sub">approvals: host ApprovalManager</text>
+  <text x="76" y="776" class="box-sub" fill="#15803d">zero-Docker local evaluation path</text>
+
+  <!-- Docker runtime -->
+  <rect x="450" y="636" width="740" height="190" rx="8" class="dp-box" stroke-width="2"/>
+  <text x="466" y="662" class="box-title">DockerAgentRuntime — one container per chat</text>
+  <text x="466" y="680" class="box-sub" font-weight="700">RUNTIME_MODE=docker · AutoRemove · warm/cold resume via claudeSessionId</text>
+
+  <rect x="466" y="694" width="430" height="118" rx="6" fill="#f0fdf4" stroke="#16a34a" stroke-width="1.2"/>
+  <text x="482" y="716" class="box-sub" font-weight="700" fill="#14532d">eaos-agent-* container (image eaos-agent:latest)</text>
+  <text x="482" y="736" class="box-sub">agent-entry.ts — WS IPC :9100 · SDK query() loop</text>
+  <text x="482" y="753" class="box-sub">PreToolUse hook = in-container approval channel</text>
+  <text x="482" y="770" class="box-sub">MCP commands must live under /opt/agent/mcp/</text>
+  <text x="482" y="787" class="box-sub">skills mounted read-only at /opt/agent/plugins/</text>
+
+  <rect x="1120" y="694" width="150" height="54" rx="6" fill="#ffffff" stroke="#16a34a" stroke-width="1.2"/>
+  <text x="1195" y="716" class="box-sub" text-anchor="middle">vol: workspace</text>
+  <text x="1195" y="733" class="box-sub" text-anchor="middle">(project files)</text>
+  <rect x="1120" y="758" width="150" height="54" rx="6" fill="#ffffff" stroke="#16a34a" stroke-width="1.2"/>
+  <text x="1195" y="780" class="box-sub" font-weight="700" text-anchor="middle">vol: claude-home</text>
+  <text x="1195" y="797" class="box-sub" text-anchor="middle">(cold-resume state)</text>
+
+  <!-- approval dashed arrow from container to ApprovalManager -->
+  <path d="M 466 710 C 380 710, 380 470, 1000 442" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#arrGray)"/>
+  <text x="420" y="586" class="arrow-label">tool-call approval round-trip (human in the loop)</text>
+
+  <!-- legend -->
+  <line x1="420" y1="866" x2="444" y2="866" stroke="#475569" stroke-width="2" marker-end="url(#arr)"/>
+  <text x="450" y="870" class="arrow-label">request / event flow</text>
+  <line x1="610" y1="866" x2="634" y2="866" stroke="#d97706" stroke-width="2" stroke-dasharray="6 4" marker-end="url(#arrOrange)"/>
+  <text x="640" y="870" class="arrow-label">capability injection via resolve()</text>
+  <line x1="850" y1="866" x2="874" y2="866" stroke="#94a3b8" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#arrGray)"/>
+  <text x="880" y="870" class="arrow-label">approval / governance</text>
+</svg>

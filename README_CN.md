@@ -84,9 +84,11 @@ Claude Code 开源生态  ×  企业级业务 Agent 平台
 
 ## 架构
 
-![总体架构（含建设状态标注）](docs/assets/github/eaos-architecture.svg)
+![技术架构：控制面 / 数据面分离](docs/assets/github/eaos-architecture-tech.svg)
 
 控制平面（agent 定义 / profile / 授权 / 审计）与数据平面（容器 runtime / SDK query / 工具执行）严格分离；所有能力经 `CapabilityProvider.resolve()` 翻译后注入，前端与用户**永不**直设工具、插件或宿主机路径。
+
+![功能与定位架构](docs/assets/github/eaos-architecture.svg)
 
 ## Quickstart
 
