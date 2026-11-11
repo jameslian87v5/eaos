@@ -6,6 +6,8 @@
 
 🎬 [观看 50 秒介绍视频](https://github.com/jameslian87v5/eaos/releases/download/v0.1.0/eaos-intro.mp4)
 
+![EAOS 登录页](docs/assets/github/eaos-login.png)
+
 ---
 
 ## 为什么做这个项目
